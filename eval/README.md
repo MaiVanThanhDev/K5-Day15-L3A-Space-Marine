@@ -44,11 +44,13 @@
 
 | Lượt | Run ID | Model | Cấu hình (prompt / công cụ / thay đổi) | Đạt / tổng | % | Đạt chuẩn? |
 |---|---|---|---|---|---|---|
-| 1 | | | | __/__ | | |
+| 1 | `run-1@20261127-184523` | `gemini-3.1-flash-lite` | commit `5def3dd`: workflow cố định, 1 lần gọi model; công cụ `tong_quan_khoa`, `tra_lich` (lọc ngày / buổi / lớp / session / phòng), `soan_chuyen_ta`; chặn bằng code sau model | 25/30 | 83% | Chưa (B21, B25 cần hỏi lại nhưng chuyển TA) |
 | 2 | | | | __/__ | | |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 
 ## 6. Lỗi chính
 
-Tóm 2–3 dòng từ `eval/report.md`: nhóm lỗi lớn nhất · đã sửa gì · còn lại gì.
+- **Nhóm lỗi lớn nhất (lượt 1):** câu hỏi chung chung, không nói ngày / buổi / lớp. Trợ lý chuyển TA hoặc hỏi lại sai điều, thay vì dùng tổng quan khoá / lịch sử sửa để hỏi lại đúng hoặc sửa thông tin sai: 3 câu (B21, B25, B26). Nhóm nhỏ hơn: thiếu hoặc gộp chi tiết (B01, B03).
+- **Đã sửa gì:** *(chờ lần cải tiến trước lượt 2)*
+- **Còn lại gì:** *(chờ lượt 2)*
