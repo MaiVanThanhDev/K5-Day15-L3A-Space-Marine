@@ -11,15 +11,16 @@
 
 ## 2. Bộ câu thử dựng ra sao
 
-- `eval/benchmark.csv`: 20 câu (thuong 6 · kho 11 · tu_choi 3, trong đó 3 câu tấn công). Mốc "bây giờ" khi chấm: 21:00 27/04/2027 (thời điểm bản xuất của data)
-- Nguồn (`python run.py check` in sẵn): nguoi_dung 0 · data_that 0 · tu_viet 20 · sinh_seed 0 → từ người dùng / data thật 0/20 (cần ≥1/3) — **còn thiếu**: cần thêm ≥10 câu thật (tổng 30) từ tin Discord (`data_that`) / khảo sát, phỏng vấn (`nguoi_dung`) trước CP3. Câu dựng từ training-ops ghi `tu_viet: <file>/<sheet>`
+- `eval/benchmark.csv`: 30 câu (thuong 6 · kho 21 · tu_choi 3, trong đó 3 câu tấn công). Mốc "bây giờ" khi chấm: 21:00 27/04/2027 (thời điểm bản xuất của data)
+- Nguồn (`python run.py check` in sẵn): nguoi_dung 0 · data_that 10 · tu_viet 20 · sinh_seed 0 → từ người dùng / data thật 10/30 (đạt ≥1/3). Câu dựng từ training-ops ghi `tu_viet: <file>/<sheet>`
+- B21–B30 (`data_that`): input chép nguyên văn tin học viên hỏi trên Discord của khoá (04/11–21/11/2026, đã bỏ tên). Chọn 10 trong 13 tin thu được; bỏ 3 tin trùng ý ("Có lịch chưa ạ", "lịch học như nào thế", "lịch chiều mai") để giữ bộ trong 30 câu. Ngày / phòng trong tin thật không có trong data Khoá 9, nên `expected` vẫn lấy từ `data/lich-l3-k9.csv`: hỏi điều data không có (link nộp, hạn nộp, học bù, lịch thi, sự cố phòng) → chuyển TA; câu thiếu lớp → hỏi lại; ngày tương đối ("thứ 7 này", "chiều nay") tính theo mốc 21:00 27/04/2027
 - Độ phủ — lưới input 5 chiều (guide 2.4 bước 5):
-  1. Loại câu hỏi: phòng (B01, B02, B04, B05, B07, B08, B09, B11, B14) · giờ / có học không (B06, B12, B15, B19) · nội dung + hình thức buổi (B03) · hạn nộp, ngoài data (B10) · điểm, điểm danh (B13, B20)
-  2. Trạng thái nguồn: đã chốt (B01, B02, B04, B05, B06) · phòng theo tiêu đề cột (B01) · online (B03, B12) · giờ riêng khác khung buổi (B19) · bị thay (B07) · mâu thuẫn bảng chính / nguồn phụ (B08, B09) · phòng dự kiến (B14) · nghỉ lễ / không có lớp (B15, B12) · không có nguồn (B10)
-  3. Độ đầy đủ của câu hỏi: đủ ngày + lớp + buổi (đa số) · thiếu ngày (B02, B05, B06) · thiếu lớp (B11) · ngày tương đối "mai" (B12)
-  4. Phạm vi: trong phạm vi · việc riêng (B13 điểm danh, B20 điểm) · tấn công (B16 prompt injection, B17 email / đánh giá người khác, B18 lộ hướng dẫn hệ thống)
-  5. Cách gõ: có dấu (đa số) · không dấu, chữ thường (B05)
-- Câu `kho` trỏ về 4 lớp chỗ khó (`spec.md` §5): lớp 1: B07 (bị thay), B08, B09 (mâu thuẫn), B10 (không có nguồn) · lớp 2: B11, B12 · lớp 3: B13, B20 · lớp 4: B14 (phòng dự kiến), B15 (nghỉ lễ), B19 (giờ riêng)
+  1. Loại câu hỏi: phòng (B01, B02, B04, B05, B07, B08, B09, B11, B14, B21, B28) · giờ / có học không (B06, B12, B15, B19, B26, B27, B29) · thời khoá biểu chung (B25) · nội dung + hình thức buổi (B03) · nộp bài — hạn, link, có phải nộp, ngoài data (B10, B22, B23, B24) · điểm, điểm danh (B13, B20, B30)
+  2. Trạng thái nguồn: đã chốt (B01, B02, B04, B05, B06) · phòng theo tiêu đề cột (B01) · online (B03, B12, B27) · giờ riêng khác khung buổi (B19) · bị thay (B07, B21) · mâu thuẫn bảng chính / nguồn phụ (B08, B09) · phòng dự kiến (B14) · nghỉ lễ / không có lớp (B15, B12, B27) · không có nguồn (B10, B22, B23, B24, B28)
+  3. Độ đầy đủ của câu hỏi: đủ ngày + lớp + buổi (đa số) · thiếu ngày (B02, B05, B06) · thiếu lớp / buổi (B11, B21, B25) · ngày tương đối "mai", "sáng nay", "chiều nay" (B12, B22, B24, B27) · câu chứa giả định sai (B26, B27, B29)
+  4. Phạm vi: trong phạm vi · việc riêng (B13 điểm danh, B20 điểm, B30 điểm danh sai phòng) · tấn công (B16 prompt injection, B17 email / đánh giá người khác, B18 lộ hướng dẫn hệ thống)
+  5. Cách gõ: có dấu, câu gọn (B01–B20, trừ B05) · không dấu, chữ thường (B05) · văn nói thật trên Discord: viết tắt, xuống dòng, gõ thừa dấu cách, câu dài (B21–B30)
+- Câu `kho` trỏ về 4 lớp chỗ khó (`spec.md` §5): lớp 1: B07, B21 (bị thay), B08, B09 (mâu thuẫn), B10, B22, B23, B24, B28 (không có nguồn) · lớp 2: B11, B12, B21, B25, B27 · lớp 3: B13, B20, B30 · lớp 4: B14 (phòng dự kiến), B15 (nghỉ lễ), B19 (giờ riêng) · câu chứa giả định sai (chưa gán lớp): B26, B27, B29
 - Tình huống khó của đề A2 chưa phủ: "câu đã được trả lời ở thread khác" — data BTC không có thread Discord
 
 ## 3. Metric và cách chấm
