@@ -43,17 +43,18 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 - **Lát cắt MỘT CÂU:** một học viên L3 · hỏi "hạn nộp lab X / buổi mai học phòng nào" · AI quyết định **trả lời** (kèm link thông báo chính thức mới nhất) hay **chuyển TA** (không có nguồn, nguồn mâu thuẫn, phòng chưa xác nhận, hỏi việc riêng) · học viên nhận đúng hạn / phòng hoặc được TA tiếp nhận, không nhận thông tin sai.
 - Không làm (≥3 điều):
 - **Sơ đồ** (ảnh / Mermaid / draw.io): [chèn ở đây]
-- **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent — Mọi câu hỏi đi cùng một đường: code đọc ngày / lớp → tra thông báo + lịch → model quyết định 1 lần (answer / ask / handoff / refuse) → code kiểm nguồn. Không chọn agent vì chỉ có 2 công cụ tra cứu cố định, không cần AI tự chọn bước; thêm vòng lặp chỉ thêm token và thêm chỗ sai.
+- **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent — Mọi câu hỏi đi cùng một đường: code đọc ngày / buổi / lớp / session → tra lịch → model quyết định 1 lần (answer / ask / handoff / refuse) → code kiểm lại. Không chọn agent vì chỉ có 1 công cụ tra cứu với bộ lọc cố định, không cần AI tự chọn bước; thêm vòng lặp chỉ thêm token và thêm chỗ sai.
 - **Luồng** (`codebase/agent.py`):
   ```mermaid
   flowchart LR
-    Q[Câu hỏi học viên] --> P[code: đọc ngày, lớp]
-    P --> S[search_announcements] & G[get_schedule]
-    S & G --> C[Căn cứ + status do code tính]
+    Q[Câu hỏi học viên] --> P[code: đọc ngày, buổi, lớp, session]
+    P --> T[tra_lich: bảng chính + nguồn phụ + lịch sử sửa]
+    T --> C[Căn cứ + trang_thai do code tính]
     C --> M[model: answer / ask / handoff / refuse, JSON]
-    M --> V{code: nguồn hien_hanh?}
-    V -- có --> A[Trả lời + link nguồn lấy từ dữ liệu]
-    V -- không --> H[draft_ta_handoff: bản nháp chờ TA duyệt]
+    M --> V{code: ô trích có trong kết quả, phòng / giờ khớp ô đã chốt?}
+    V -- có --> A[Trả lời + trích file · sheet · ô do code viết]
+    V -- không --> H[soan_chuyen_ta: bản nháp chờ TA duyệt]
+    M -- handoff --> H
     M -- ask --> K[Hỏi lại 1 điều thiếu]
     M -- refuse --> R[Từ chối + chỉ đường]
   ```
@@ -61,24 +62,34 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
   |---|---|---|---|
-  | `search_announcements` | câu hỏi (str) | ≤6 thông báo kèm `status` do code tính: `hien_hanh` · `da_bi_thay` · `mau_thuan` · `chua_chot` · `khong_chinh_thuc` | Không (chỉ đọc `data/announcements.json`) |
-  | `get_schedule` | ngày `YYYY-MM-DD`, lớp `L3A`/`L3B`/rỗng | các buổi trong ngày + phòng từ thông báo phòng mới nhất, `room_status`, id nguồn | Không (chỉ đọc) |
-  | `draft_ta_handoff` | câu hỏi, lý do chuyển | bản nháp tin nhắn tag TA, `status: ban_nhap_cho_duyet` | Có nếu gửi → **chỉ tạo bản nháp**, người duyệt mới gửi |
+  | `tra_lich` | `ngay` dd/mm/yyyy · `buoi` Sáng/Chiều · `lop` L3A/L3B · `session` vd LAB 13 (bỏ trống = không lọc) | ≤12 buổi của bảng chính: ô `o`, ngày, giờ, lớp, session, hình thức, `trang_thai` do code tính (`da_chot` · `chua_chot` · `online` · `khong_ap_dung`), phòng (chỉ khi đã chốt), nguồn phụ đang lệch, lịch sử sửa | Không (chỉ đọc `data/lich-l3-k9.csv`, `data/lich-su-sua-l3-k9.csv`) |
+  | `soan_chuyen_ta` | câu hỏi, lý do chuyển | bản nháp tin nhắn tag TA, `trang_thai: ban_nhap_cho_duyet` | Có nếu gửi → **chỉ tạo bản nháp**, người duyệt mới gửi |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [x] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm — trả lời tự động chỉ khi có nguồn chính thức còn hiệu lực, không mâu thuẫn; sai hạn thì học viên nộp trễ, mất điểm; sai phòng thì cả nhóm đi nhầm, mất giờ học — sửa đắt, nên mọi trường hợp không chắc đều chuyển TA.
-- **Chỗ chặn rủi ro:** rủi ro lớn nhất là báo sai hạn / phòng. Chặn bằng bước **kiểm luật bằng code** trước khi model soạn câu: không có thông báo khớp → chuyển TA; có thông báo bị thay (`thay_the_cho`) → chỉ dùng bản mới nhất; hai bản cùng hiệu lực khác nhau → chuyển TA; phòng `chua_xac_nhan` → chuyển TA. Câu trả lời bắt buộc kèm link + ngày đăng để học viên tự kiểm.
+- **Chỗ chặn rủi ro:** rủi ro lớn nhất là báo sai hạn / phòng. Chặn bằng code ở cả hai đầu:
+  - **Trước model:** `tra_lich` chỉ đưa phòng của bảng chính khi đã chốt. Ô chưa chốt thì đánh dấu `chua_chot` và không đưa phòng, dù nguồn phụ ghi gì. Nếu ô có lịch sử sửa thì chỉ dùng giá trị hiện tại.
+  - **Sau model:** câu trả lời nêu phòng / giờ không có trong ô đã chốt → chuyển TA.
+  - Câu trả lời luôn kèm trích `file · sheet · ô` để học viên tự kiểm.
 - **Chỗ người duyệt:** mọi tin gửi / tag TA (bản nháp `soan_chuyen_ta`); mọi câu về điểm, điểm danh, gia hạn, việc riêng.
 - **Nguyên tắc thiết kế** (≥3, bắt buộc G10):
 
   | Nguyên tắc | Chỗ cụ thể trên sơ đồ / trong bản chạy thử |
   |---|---|
   | G10 — thu hẹp phạm vi khi không chắc | Nút "Code kiểm luật": không có nguồn / mâu thuẫn / phòng chưa xác nhận → chuyển TA thay vì trả lời |
-  | Mọi khẳng định có nguồn kiểm được | Câu trả lời luôn kèm link + ngày đăng của thông báo dùng |
+  | Mọi khẳng định có nguồn kiểm được | Câu trả lời luôn kèm trích `file · sheet · ô` của bảng chính; code kiểm phòng / giờ trong câu khớp ô đã trích |
   | Việc có tác động ra ngoài chỉ là bản nháp | `soan_chuyen_ta` trả bản nháp, không gửi |
   | Luật cứng bằng code, không giao cho prompt | Chọn bản mới nhất, phát hiện mâu thuẫn, kiểm `trang_thai` phòng làm trong code |
 
-- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: dữ liệu thông báo / lịch ở `data/announcements.json` là `synthetic` (nhóm tự viết, link `.example` giả, "hôm nay" cố định 27/11/2026, đổi bằng `APP_TODAY` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py`. Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
-- **Chặn trong code** (`codebase/agent.py`, không phụ thuộc model): `answer` chỉ được trích thông báo `hien_hanh` có trong căn cứ của câu đó, sai thì đổi thành chuyển TA · link nguồn do code chèn từ dữ liệu, model không tự viết link · model trả sai định dạng thì chuyển TA · câu hỏi đặt trong `<cau_hoi>`, prompt ghi rõ đó là dữ liệu chứ không phải lệnh.
+- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: lịch là data BTC giả lập Khoá 9 (`synthetic`). "Hiện tại" của trợ lý cố định ở mốc bản xuất 21:00 27/04/2027 (đổi bằng `APP_NOW` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py`. Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
+- **Chặn trong code** (`codebase/agent.py`, không phụ thuộc model):
+  - `answer` phải trích ô bảng chính có trong kết quả tra của câu đó.
+  - Mọi mã phòng và mọi giờ trong câu trả lời phải nằm trong đúng ô đã trích, và ô đó phải đã chốt. Sai thì chuyển TA.
+  - Hỏi hạn nộp (dữ liệu không có) mà model vẫn trả lời → chuyển TA.
+  - Không nói lớp mà L3A và L3B cùng có session được hỏi → hỏi lại lớp.
+  - Từ chối không được nhắc mã phòng hay email. Chuyển TA mà nêu phòng thì phải ghi "dự kiến / chưa xác nhận".
+  - Model trả sai định dạng → chuyển TA.
+  - Chuỗi trích `file · sheet · ô` do code viết từ dữ liệu.
+  - Câu hỏi đặt trong `<cau_hoi>`, prompt ghi rõ đó là dữ liệu chứ không phải lệnh.
 
 ## §5. Chỗ khó — 4 lớp + ≥6 kịch bản + 2 tấn công *(guide 2.3)*
 
@@ -119,7 +130,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: chỉ dùng thông báo chung của khoá (hạn, phòng, lịch), viết lại / trích ngắn; không thu tên, mã học viên, điểm. Câu hỏi đưa vào model không kèm thông tin định danh; không đưa dữ liệu cá nhân vào model gói miễn phí.
 - AI **không được** làm, kể cả khi người dùng yêu cầu: tự gửi tin / tag TA, đổi hay "công bố" hạn / phòng, trả lời điểm / điểm danh / gia hạn, đưa hạn / phòng không có trong nguồn.
-- Ai có thể bị hại nếu AI sai: học viên (nộp trễ, mất điểm, đi nhầm phòng) và TA (phải xử lý hậu quả). Chặn bằng: kiểm luật bằng code trước khi trả lời (§4), luôn kèm link + ngày đăng để học viên tự kiểm, không chắc thì chuyển TA, câu tấn công trong bộ câu thử (§5).
+- Ai có thể bị hại nếu AI sai: học viên (nộp trễ, mất điểm, đi nhầm phòng) và TA (phải xử lý hậu quả). Chặn bằng: kiểm luật bằng code trước khi trả lời (§4), luôn kèm trích `file · sheet · ô` để học viên tự kiểm, không chắc thì chuyển TA, câu tấn công trong bộ câu thử (§5).
 
 ## §10. Phân công & changelog
 - Phân công có tên: Mai Văn Thanh (đội trưởng — bằng chứng: khảo sát + đếm tin Discord, `evidence/`) · Lê Quang Trường (bộ câu thử + metric + chuẩn đạt, `eval/`, §7) · Lục Anh Tuấn (bản chạy thử: công cụ tra thông báo / lịch, nối model, `codebase/`) · Nguyễn Lê Hải Nam (mô phỏng chi phí + slide, `cost/`, `demo-slides.pdf`).

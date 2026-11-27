@@ -1,19 +1,18 @@
-"""Công cụ của bài toán — trợ lý hạn nộp / phòng học / lịch cho học viên L3 (spec.md §4).
+"""Công cụ của bài toán — trợ lý lịch học / phòng học cho học viên lớp L3 (spec.md §4).
 
-Ba công cụ, khớp bảng "AI dựa vào đâu" ở spec.md §4:
-    search_announcements(query)        tra thông báo (hạn nộp, quy định…)      — chỉ đọc
-    get_schedule(date, class_name)     lịch một ngày + phòng từ thông báo mới nhất — chỉ đọc
-    draft_ta_handoff(question, reason) soạn BẢN NHÁP chuyển TA, chờ người duyệt   — KHÔNG tự gửi
+Hai công cụ, khớp bảng "AI dựa vào đâu" ở spec.md §4:
+    tra_lich(ngay, buoi, lop, session)  tra các buổi học trong bảng chính + nguồn phụ + lịch sử sửa — chỉ đọc
+    soan_chuyen_ta(cau_hoi, ly_do)      soạn BẢN NHÁP tin nhắn cho TA, chờ người duyệt           — KHÔNG tự gửi
 
-Dữ liệu: data/announcements.json (synthetic, mô tả ở data/DATA_CARD.md).
-Trạng thái từng thông báo do CODE tính (không để model tự đoán):
-    hien_hanh        thông báo chính thức, chưa bị thay, không mâu thuẫn → được trích làm nguồn
-    da_bi_thay       đã có thông báo chính thức mới hơn thay thế (trường supersedes)
-    mau_thuan        ≥2 thông báo chính thức còn hiệu lực cho cùng một việc nhưng khác giá trị
-    chua_chot        thông báo chính thức nói rõ là chưa chốt (value = null)
-    khong_chinh_thuc tin nhắn của học viên / không phải BTC, TA
+Dữ liệu: data/lich-l3-k9.csv, data/lich-su-sua-l3-k9.csv (trích từ data BTC training-ops, xem data/DATA_CARD.md).
+Trạng thái mỗi buổi do CODE tính theo quy ước ở data/DATA_CARD.md (không để model tự suy):
+    da_chot        bảng chính đã chốt phòng (da_chot / theo_tieu_de_cot) → dùng bảng chính, bỏ qua nguồn phụ
+    chua_chot      bảng chính chờ xác nhận / dự kiến → không khẳng định phòng, dù nguồn phụ ghi gì
+    online         buổi học online
+    khong_ap_dung  không có lớp / nghỉ lễ / khai giảng
 """
-import json
+import csv
+import datetime
 import os
 import re
 import unicodedata
@@ -21,148 +20,144 @@ import unicodedata
 from tracing import tool, TOOLS  # noqa: F401
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(ROOT, "data", "announcements.json")
-
-STOPWORDS = set("""a ah a oi cho minh em toi ban la gi khi nao bao gio o dau vay va voi cua cac nhung the nay do
-khong co duoc phai roi nhe nha a hoi khoa hoc lop buoi""".split())
-
-# ---------------------------------------------------------------- dữ liệu + trạng thái
+LICH = os.path.join(ROOT, "data", "lich-l3-k9.csv")
+LICH_SU = os.path.join(ROOT, "data", "lich-su-sua-l3-k9.csv")
+MAX_BUOI = 12  # số buổi tối đa trả về một lần tra
 
 
 def norm(text):
-    """chữ thường, bỏ dấu tiếng Việt (đ → d), gộp khoảng trắng — để so khớp từ khoá."""
+    """chữ thường, bỏ dấu tiếng Việt (đ → d), gộp khoảng trắng — để so khớp."""
     text = unicodedata.normalize("NFD", (text or "").lower().replace("đ", "d"))
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
     return re.sub(r"\s+", " ", text).strip()
 
 
-def _load():
-    with open(DATA_PATH, encoding="utf-8") as f:
-        data = json.load(f)
-    items = data["announcements"]
-    by_id = {a["id"]: a for a in items}
-    superseded_by = {}
-    for a in items:
-        old = a.get("supersedes")
-        if a.get("official") and old in by_id:
-            superseded_by[old] = a["id"]
-    # mâu thuẫn: các thông báo chính thức còn hiệu lực, cùng subject, khác value
-    active = {}
-    for a in items:
-        if a.get("official") and a["id"] not in superseded_by:
-            active.setdefault(a["subject"], []).append(a)
-    for a in items:
-        if not a.get("official"):
-            a["status"] = "khong_chinh_thuc"
-        elif a["id"] in superseded_by:
-            a["status"] = "da_bi_thay"
-            a["thay_boi"] = superseded_by[a["id"]]
-        else:
-            others = [o for o in active[a["subject"]] if o["id"] != a["id"] and o.get("value") != a.get("value")]
-            if others:
-                a["status"] = "mau_thuan"
-                a["mau_thuan_voi"] = [o["id"] for o in others]
-            elif a.get("value") is None:
-                a["status"] = "chua_chot"
-            else:
-                a["status"] = "hien_hanh"
-    return data, by_id
+def _read(path):
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f))
 
 
-DATA, BY_ID = _load()
-AS_OF = DATA.get("as_of")
+def _date(s):
+    return datetime.datetime.strptime(s, "%d/%m/%Y").date()
 
 
-def public(a):
-    """Bản rút gọn đưa cho model / người dùng."""
-    keep = ("id", "source", "author_role", "posted_at", "topic", "subject", "value", "text", "status",
-            "thay_boi", "mau_thuan_voi")
-    return {k: a[k] for k in keep if k in a}
+ROWS = _read(LICH)
+HISTORY = _read(LICH_SU)
+MAIN = [r for r in ROWS if r["nguon"] == "bang_chinh"]
+SECONDARY = [r for r in ROWS if r["nguon"] != "bang_chinh"]
+CELLS = {(r["file"], r["sheet"], r["o"]): r for r in ROWS}
+MAIN_CELLS = {r["o"]: r for r in MAIN}
 
 
-def citation(source_id):
-    """Dòng nguồn hiển thị cho người dùng — link lấy từ DỮ LIỆU, không để model tự viết link."""
-    a = BY_ID[source_id]
-    return "[%s] %s — %s (đăng %s)" % (a["id"], a["source"], a["link"], a["posted_at"])
+def _as_of():
+    """Mốc hiện tại của dữ liệu: "Bản xuất 27/04/2027 21:00" ở cột cap_nhat của bảng chính."""
+    for r in MAIN:
+        m = re.search(r"(\d{2}/\d{2}/\d{4}) (\d{2}:\d{2})", r.get("cap_nhat", ""))
+        if m:
+            return datetime.datetime.strptime(" ".join(m.groups()), "%d/%m/%Y %H:%M")
+    return datetime.datetime.now()
 
 
-# ---------------------------------------------------------------- công cụ
-
-TOPIC_WORDS = {
-    "deadline": ["han", "nop", "deadline", "gia han", "tre", "due", "submit"],
-    "room": ["phong", "room", "hoc o dau", "o dau", "toa", "zoom", "online"],
-    "policy": ["tre", "quy dinh", "tru diem", "gia han rieng"],
-}
-HACKATHON_WORDS = ["hackathon", "checkpoint", "cp1", "cp2", "cp3", "cp4", "demo", "reflection", "slide", "day 15", "lab 15"]
+AS_OF = _as_of()
 
 
-def _labs(qn):
-    return {"lab%d" % int(n) for n in re.findall(r"\b(?:lab|day|bai|ngay)\s*(\d{1,2})\b", qn)}
+def cite(o, row=None):
+    """Chuỗi trích nguồn dạng  file · sheet · ô  (dạng metric trich_nguon yêu cầu)."""
+    r = row or MAIN_CELLS[o]
+    return "%s · %s · %s" % (r["file"], r["sheet"], r["o"])
+
+
+def rooms_of(text):
+    return re.findall(r"\b[A-H]\d{3}\b", text or "")
+
+
+def _status(rows):
+    tt = {r["trang_thai_phong"] for r in rows}
+    if tt & {"cho_xac_nhan", "du_kien"}:
+        return "chua_chot"
+    if "online" in tt:
+        return "online"
+    if tt <= {"khong_ap_dung"}:
+        return "khong_ap_dung"
+    return "da_chot"
+
+
+def _session_obj(rows):
+    """Gộp các ô bảng chính của cùng một buổi (LEC chiếm 2 cột D, E) thành một buổi."""
+    r0 = rows[0]
+    status = _status(rows)
+    cells = [r["o"] for r in rows]
+    rooms = []
+    for r in rows:
+        for p in rooms_of(r["phong"]):
+            if p not in rooms:
+                rooms.append(p)
+    extra = []
+    for r in rows:
+        for p in rooms_of(r["phong_them"]):
+            if p not in extra:
+                extra.append(p)
+    obj = {
+        "o": cells, "ngay": r0["ngay"], "thu": r0["thu"], "buoi": r0["buoi"], "gio": r0["gio"],
+        "lop": r0["lop"] or None, "session": r0["session"] or None, "chu_de": r0["chu_de"] or None,
+        "hinh_thuc": ("online" if r0["online"] == "co" else (r0["ghi_chu"] or "truc_tiep")),
+        "trang_thai": status,
+        "phong": rooms if status == "da_chot" else [],
+        "phong_them": extra if status == "da_chot" else [],
+    }
+    if status == "chua_chot":
+        obj["phong_du_kien_chua_xac_nhan"] = rooms or "chờ xác nhận, chưa có phòng"
+    # nguồn phụ cùng ngày / buổi / lớp — chỉ để model biết các nguồn đang lệch, KHÔNG dùng làm đáp án
+    sec = [s for s in SECONDARY if s["ngay"] == r0["ngay"] and s["buoi"] == r0["buoi"] and s["lop"] == r0["lop"] and r0["lop"]]
+    if sec:
+        obj["nguon_phu"] = [{"nguon": cite(s["o"], s), "phong": s["phong"] or None,
+                             "trang_thai_phong": s["trang_thai_phong"]} for s in sec]
+        obj["nguon_phu_ghi_chu"] = ("Bảng chính đã chốt → bỏ qua nguồn phụ." if status == "da_chot"
+                                    else "Bảng chính chưa chốt → không khẳng định phòng, dù nguồn phụ ghi gì.")
+    hist = [h for h in HISTORY if set(x.strip() for x in h["o"].split(",")) & set(cells)]
+    if hist:
+        obj["lich_su_sua"] = [{"thoi_diem": h["thoi_diem"], "truoc": h["truoc"], "sau": h["sau"]} for h in hist]
+    return obj
 
 
 @tool
-def search_announcements(query: str) -> list:
-    """Tra thông báo của khoá theo câu hỏi.
-    Input: câu hỏi (str). Output: tối đa 6 thông báo {id, source, posted_at, subject, value, text, status, …},
-    xếp theo độ khớp; status do code tính (hien_hanh / da_bi_thay / mau_thuan / chua_chot / khong_chinh_thuc).
+def tra_lich(ngay: str = "", buoi: str = "", lop: str = "", session: str = "") -> list:
+    """Tra các buổi học của lớp L3 trong bảng chính (teaching-schedule.xlsx · Khoá 9 (GĐ1)).
+    Input (bỏ trống = không lọc): ngay "dd/mm/yyyy" · buoi "Sáng" / "Chiều" · lop "L3A" / "L3B" · session vd "LAB 13", "LEC 15", "HACKATHON".
+    Output: tối đa 12 buổi {o, ngay, thu, buoi, gio, lop, session, chu_de, hinh_thuc, trang_thai, phong, phong_them,
+    phong_du_kien_chua_xac_nhan?, nguon_phu?, lich_su_sua?}; khi lọc theo ngày có cả ô "không có lớp" / "NGHỈ LỄ".
     Không tác động ra ngoài."""
-    qn = norm(query)
-    labs = _labs(qn)
-    if any(w in qn for w in HACKATHON_WORDS):
-        labs.discard("lab15")
-    words = [w for w in re.findall(r"[a-z0-9]+", qn) if len(w) >= 2 and w not in STOPWORDS]
-    scored = []
-    for a in DATA["announcements"]:
-        if a["topic"] == "room":
-            continue  # phòng học tra qua get_schedule (theo ngày + lớp)
-        subj = a["subject"]
-        if labs and subj.startswith("lab") and subj not in labs:
-            continue  # hỏi lab khác → loại hẳn, tránh nhầm lab
-        hay = norm(a["text"] + " " + subj + " " + (a.get("value") or ""))
-        score = sum(1 for w in words if re.search(r"\b%s\b" % re.escape(w), hay))
-        if subj in labs:
-            score += 5
-        if subj == "hackathon" and any(w in qn for w in HACKATHON_WORDS):
-            score += 5
-        if any(w in qn for w in TOPIC_WORDS.get(a["topic"], [])):
-            score += 2
-        if score >= 3:
-            scored.append((score, a["posted_at"], a))
-    scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return [public(a) for _, _, a in scored[:6]]
+    if not (ngay or lop or session):
+        return []
+    want_lop = lop.upper().replace(" ", "")
+    want_ses = norm(session)
+    picked = []
+    for r in MAIN:
+        if ngay and r["ngay"] != ngay:
+            continue
+        if buoi and norm(r["buoi"]) != norm(buoi):
+            continue
+        if not r["lop"]:  # ô không có lớp / nghỉ lễ / khai giảng: chỉ có nghĩa khi hỏi theo ngày
+            if ngay and not session:
+                picked.append(r)
+            continue
+        if want_lop and r["lop"] not in (want_lop, "L3AB"):
+            continue
+        if want_ses and not norm(r["session"]).startswith(want_ses):
+            continue
+        picked.append(r)
+    groups = {}
+    for r in picked:
+        groups.setdefault((r["ngay"], r["buoi"], r["lop"], r["session"], r["ghi_chu"]), []).append(r)
+    out = [_session_obj(g) for g in groups.values()]
+    out.sort(key=lambda s: (_date(s["ngay"]), 0 if s["buoi"] == "Sáng" else 1, s["o"][0]))
+    return out[:MAX_BUOI]
 
 
 @tool
-def get_schedule(date: str, class_name: str = "") -> list:
-    """Lịch học một ngày, kèm phòng lấy từ thông báo phòng mới nhất.
-    Input: date "YYYY-MM-DD", class_name "L3A" / "L3B" / "" (không rõ lớp → trả cả hai).
-    Output: danh sách buổi {date, session, time, class, activity, room, room_status, room_source, other_notices}.
-    room_status: hien_hanh / chua_chot / mau_thuan / chua_co_thong_bao. Không tác động ra ngoài."""
-    out = []
-    for s in DATA["schedule"]:
-        if s["date"] != date:
-            continue
-        if class_name and s["class"] not in (class_name, "ALL"):
-            continue
-        notices = [a for a in DATA["announcements"] if a["topic"] == "room"
-                   and a["subject"] in ("room|%s|%s|%s" % (date, s["session"], s["class"]),
-                                        "room|%s|%s|ALL" % (date, s["session"]))]
-        main = [a for a in notices if a["status"] in ("hien_hanh", "chua_chot", "mau_thuan")]
-        row = dict(s)
-        if not main:
-            row.update(room=None, room_status="chua_co_thong_bao", room_source=None)
-        else:
-            a = sorted(main, key=lambda x: x["posted_at"])[-1]
-            row.update(room=a.get("value"), room_status=a["status"], room_source=a["id"])
-        row["other_notices"] = [public(a) for a in notices if a["id"] != row["room_source"]]
-        out.append(row)
-    return out
-
-
-@tool
-def draft_ta_handoff(question: str, reason: str) -> dict:
+def soan_chuyen_ta(cau_hoi: str, ly_do: str) -> dict:
     """Soạn bản nháp tin nhắn chuyển câu hỏi cho TA trực Discord.
-    Input: câu hỏi gốc (str), lý do chuyển (str). Output: {status: "ban_nhap_cho_duyet", to, content}.
-    CÓ tác động ra ngoài nếu gửi → công cụ KHÔNG gửi, chỉ trả bản nháp; TA / người trực duyệt rồi mới gửi."""
-    content = "@TA-truc Học viên hỏi: \"%s\"\nLý do trợ lý chuyển: %s" % (question.strip()[:500], reason.strip()[:300])
-    return {"status": "ban_nhap_cho_duyet", "to": "TA trực Discord", "content": content}
+    Input: câu hỏi gốc (str), lý do chuyển (str). Output: {trang_thai: "ban_nhap_cho_duyet", gui_cho, noi_dung}.
+    CÓ tác động ra ngoài nếu gửi → công cụ KHÔNG gửi, chỉ trả bản nháp; người trực duyệt rồi mới gửi."""
+    noi_dung = "@TA-truc Học viên hỏi: \"%s\"\nLý do trợ lý chuyển: %s" % (cau_hoi.strip()[:500], ly_do.strip()[:300])
+    return {"trang_thai": "ban_nhap_cho_duyet", "gui_cho": "TA trực Discord", "noi_dung": noi_dung}
