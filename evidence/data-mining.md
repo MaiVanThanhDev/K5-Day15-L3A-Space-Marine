@@ -6,7 +6,7 @@
 
 ## 1. Cách đếm — viết TRƯỚC khi chạy
 
-- Data dùng: kênh forum **🙋-hỏi-đáp** trên Discord công khai của khoá AI20K K5, đọc trực tiếp trên Discord (không xuất file), từ __ đến __ *(điền ngày bài cũ nhất / mới nhất)*.
+- Data dùng: kênh forum **🙋-hỏi-đáp** trên Discord công khai của khoá AI20K K5, đọc trực tiếp trên Discord (không xuất file), khoảng **05/11/2026 → 24/11/2026** (Discord chỉ hiện "22 ngày trước" … "3 ngày trước"; quy đổi theo ngày chụp danh sách 27/11/2026, lệch ±1 ngày).
 - Đếm gì: **bài đăng** (post) hỏi về hạn nộp / phòng học / lịch học · trên tập nào: mọi bài đăng trong kênh · lọc gì: không lọc.
 - **Mẫu số là gì:** N = tổng số bài đăng trong kênh (không phải số tin nhắn: tin trả lời, cảm ơn trong bài không tính).
 - Cách đếm: đọc tay tiêu đề + câu đầu của từng bài, đánh dấu bài thuộc chủ đề hạn / phòng / lịch. Kênh là forum nên đếm theo bài sạch hơn đếm tin nhắn.
@@ -14,19 +14,31 @@
 
 ## 2. Đọc trước, đếm sau
 
-Đã đọc cả 18 bài. Các *kiểu* câu hỏi thấy được: __ *(vd lỗi code, thủ tục, hạn / phòng / lịch…)*
+Đã đọc cả 18 bài. Các _kiểu_ câu hỏi thấy được (theo tiêu đề + câu đầu):
+
+| Kiểu                                                         | Số bài | Ví dụ tiêu đề                                                                                              |
+| ------------------------------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------- |
+| Công cụ / kỹ thuật (CI, GitHub, Cloud Build, deploy, AI log) | 6      | "Yêu cầu hỗ trợ kết nối repo với Google Cloud Build", "[Deploy] Yêu cầu của tên domain phải có khi deploy" |
+| Đề tài / team build phase                                    | 5      | "Đề xuất đề tài mới", "Team" (lập team khác lớp)                                                           |
+| **Hạn nộp / nộp bài**                                        | **2**  | "Mentor Duty" (hạn 12:00 mai, nộp định dạng gì), "Nộp bài tập lab" (nộp muộn có bị trừ điểm)               |
+| XP / điểm danh workshop                                      | 2      | "XP Workshop", "… vẫn bị tích là vắng mặt, em muốn xem xét lại lượt điểm danh ạ"                           |
+| Hậu cần (phòng gym, áo đồng phục)                            | 2      | "Áo đồng phục"                                                                                             |
+| Định dạng bài thi                                            | 1      | "Bài thi checkpoint cuối tuần 6"                                                                           |
+
+Không bài nào hỏi phòng học hay lịch học. 1 bài là ghim của admin (giải đáp lỗi billing GitHub Actions), không phải học viên hỏi — vẫn tính trong N theo cách đếm ở mục 1.
 
 ## 3. Kết quả
 
-| Đếm gì | x / N | % | Ghi chú |
-|---|---|---|---|
-| Bài hỏi hạn nộp / phòng / lịch | 2/18 | — | n nhỏ, không ghi % |
+| Đếm gì                         | x / N | %   | Ghi chú            |
+| ------------------------------ | ----- | --- | ------------------ |
+| Bài hỏi hạn nộp / phòng / lịch | 2/18  | —   | n nhỏ, không ghi % |
 
 **Không đạt ngưỡng nguồn** (N quá nhỏ). Dùng để đối chiếu với khảo sát, không làm nguồn chính.
 
 ## 4. ≥5 ví dụ cụ thể (nguyên văn, đã bỏ tên)
 
 Tin học viên hỏi trên Discord của khoá (cũng là câu thử `data_that` B21–B30 trong `eval/benchmark.csv`):
+
 1. "Phòng E402 chuyển qua phòng nào vậy ạ" — 14:15 21/11/2026
 2. "cho mình xin link nộp bài lab sáng nay" — 22:36 06/11/2026
 3. "… bài LAB03 deadline đến 17:30 là chốt luôn hay được kéo dài đến 23:59 như mấy bài trước ạ" — 14:51 10/11/2026
@@ -35,7 +47,7 @@ Tin học viên hỏi trên Discord của khoá (cũng là câu thử `data_that
 6. "… hôm qua em xem lịch thấy phòng ở dưới hôm nay em check lại thì thấy em ở phòng. h104 mà sáng nay em ngồi và điểm danh ở phòng c104 thì có sao không ạ" — 14:06 06/11/2026
 7. "Mọi người cho e hỏi là lịch học ngày mai vào buổi chiều sẽ như nào vậy ạ? Hay mai mình chỉ học sáng thôi ạ, em thấy lịch chỉ ghi mỗi 9h-13h thôi ạ" — 18:04 05/11/2026
 
-Ghi chú: 4 tin đầu khoá (04/11) hỏi "có thời khoá biểu / có lịch chưa" — thấy ngay từ ngày đầu học viên không biết tìm lịch ở đâu. Các tin này nằm ở kênh nào, có thuộc 18 bài đếm ở mục 3 không: __ *(điền)*.
+Ghi chú: 4 tin đầu khoá (04/11) hỏi "có thời khoá biểu / có lịch chưa" — thấy ngay từ ngày đầu học viên không biết tìm lịch ở đâu. Các tin này **không thuộc 18 bài** đếm ở mục 3 (không bài nào trong 18 bài hỏi lịch — xem mục 2); nằm ở kênh: 3a-lec-h210.
 
 ## 5. Giới hạn của data
 

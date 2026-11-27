@@ -94,7 +94,9 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 
 2–3 dòng (bắt buộc): nhóm dùng công cụ AI nào để làm gì, người kiểm lại phần nào. Chi tiết: [docs/ai-usage.md](docs/ai-usage.md). Coding agent đọc [AGENTS.md](AGENTS.md).
 
-____
+- **Code + prompt:** Claude Code viết `codebase/tools.py`, `agent.py`, phần gọi API trong `ai.py` và bản đầu prompt `SYSTEM`; Lục Anh Tuấn đọc, sửa, chạy thử.
+- **Chấm eval:** Claude Code chấm nháp cột `pass` của `eval/run-1.csv`, `run-2.csv` theo `pass_criterion`; Lê Quang Trường kiểm lại, người thứ hai chấm độc lập 5 output (ca ranh giới B01, B18).
+- **Văn bản:** Claude Code soạn nháp `spec.md`, `cost/personas.yaml`, `slides/outline.md`; nhóm đọc lại, Nguyễn Lê Hải Nam kiểm giá và phép đếm. Không dùng AI để tạo người trả lời khảo sát, trích dẫn hay số liệu.
 
 ## File mẫu — điền ở bước nào
 
@@ -126,5 +128,5 @@ ____
 | 4 | Bản chạy thử làm trọn lát cắt | `codebase/` · lệnh ở mục "Lệnh" |
 | 5 | Định nghĩa "tốt" + bộ câu thử | `data/DATA_CARD.md` · `eval/` |
 | 6 | Mô phỏng chi phí khi dùng thật | `cost/` |
-| 7 | Slide + demo + video dự phòng | `demo-slides.pdf` ở thư mục gốc · link video: ____ |
+| 7 | Slide + demo + video dự phòng | `demo-slides.pdf` ở thư mục gốc · link video: https://drive.google.com/file/d/1JT5BiRp9WZtKEM8Liw2E2mSpufxflgMi/view?usp=sharing |
 | + | *Bonus:* người dùng thử | `validation/log.md` |

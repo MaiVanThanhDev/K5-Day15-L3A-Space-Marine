@@ -6,7 +6,7 @@
 ## 1. Dataset → xử lý
 
 - **Dataset 1** lịch lớp L3 Khoá 9, trích từ data BTC `data/training-ops/` (giả lập, bản xuất 21:00 27/04/2027): bảng chính `teaching-schedule.xlsx · Khoá 9 (GĐ1)`, `Lịch sử chỉnh sửa`, và hai nguồn phụ trong `lab-coach-schedule.xlsx` (bản chép ngày 12/04, `Lịch lab 2604-0805`). Script `data/extract_training_ops.py` chỉ giữ lớp L3, tách mỗi ô lịch nhiều dòng thành cột (phòng, trạng thái phòng, giờ, online…), bỏ tên người / email → `data/lich-l3-k9.csv` (158 dòng) + `data/lich-su-sua-l3-k9.csv` (27 dòng). Là căn cứ duy nhất cho cột `expected`. Data không có hạn nộp.
-- **Dataset 2** tin hỏi đáp Discord thật (Mai Văn Thanh đang đếm ở `evidence/`): dùng làm bằng chứng và nguồn câu thử `data_that` — chưa có số, __.
+- **Dataset 2** tin hỏi đáp Discord thật của khoá (Mai Văn Thanh đếm, `evidence/data-mining.md`): dùng làm bằng chứng và nguồn câu thử `data_that`. Kênh forum hỏi-đáp: 18 bài, 2 bài hỏi hạn / phòng / lịch. Chép được 13 tin học viên hỏi (04/11–21/11/2026, đã bỏ tên) → chọn 10 làm câu thử B21–B30 (xem `data/DATA_CARD.md`).
 - Chi tiết: `data/DATA_CARD.md`.
 
 ## 2. Bộ câu thử dựng ra sao
