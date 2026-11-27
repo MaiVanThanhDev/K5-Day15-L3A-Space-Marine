@@ -1,4 +1,4 @@
-# AI SPEC —  Trợ lý hạn nộp / phòng học có nguồn · Nhóm Space Marine · Phòng __ · Zone __
+# AI SPEC — Trợ lý hạn nộp / phòng học có nguồn · Nhóm Space Marine · Phòng __ · Zone __
 
 > Mốc nộp: §7 chốt chuẩn "đạt" tại **CP2 19:30 Thứ Sáu 27/11** · §0–§7 nộp **CP3 10:00 Thứ Bảy 28/11** · đủ §0–§10 **CP4 14:30 Thứ Bảy 28/11** · §10 changelog ghi tiếp đến **23:59 Thứ Bảy 28/11**.
 > Chỗ ghi *(chờ …)* là phần chưa có số thật — điền khi có bằng chứng / lượt chạy, không điền số đoán.
@@ -47,17 +47,27 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 - **Luồng** (`codebase/agent.py`):
   ```mermaid
   flowchart LR
-    Q[Câu hỏi học viên] --> P[code: đọc ngày, buổi, lớp, session]
-    P --> T[tra_lich: bảng chính + nguồn phụ + lịch sử sửa]
-    T --> C[Căn cứ + trang_thai do code tính]
-    C --> M[model: answer / ask / handoff / refuse, JSON]
-    M --> V{code: ô trích có trong kết quả, phòng / giờ khớp ô đã chốt?}
-    V -- có --> A[Trả lời + trích file · sheet · ô do code viết]
-    V -- không --> H[soan_chuyen_ta: bản nháp chờ TA duyệt]
-    M -- handoff --> H
-    M -- ask --> K[Hỏi lại 1 điều thiếu]
-    M -- refuse --> R[Từ chối + chỉ đường]
+    Q["Câu hỏi học viên"] --> P["Code: đọc ngày, buổi, lớp, session<br/>mốc hiện tại 21:00 27/04/2027"]
+    P --> T["Công cụ tra_lich<br/>bảng chính + nguồn phụ + lịch sử sửa"]
+    T --> C["Căn cứ, trang_thai do code tính<br/>da_chot · chua_chot · online · khong_ap_dung"]
+    C --> M["Model: chọn 1 trong 4 quyết định, trả JSON"]
+  
+    M -->|"answer"| D1{"Code: câu hỏi về hạn nộp?"}
+    D1 -->|"có"| H
+    D1 -->|"không"| D2{"Code: không nói lớp mà<br/>L3A và L3B cùng có session này?"}
+    D2 -->|"có"| K
+    D2 -->|"không"| D3{"Code: ô trích có trong kết quả tra,<br/>phòng và giờ khớp ô đã chốt?"}
+    D3 -->|"có"| A["Trả lời + trích nguồn file · sheet · ô<br/>chuỗi nguồn do code viết"]
+    D3 -->|"không"| H
+  
+    M -->|"ask"| K["Hỏi lại 1 điều còn thiếu"]
+    M -->|"handoff"| H["Công cụ soan_chuyen_ta<br/>bản nháp chờ TA duyệt, không tự gửi<br/>code bỏ câu nêu phòng mà không ghi chưa xác nhận"]
+    M -->|"refuse"| R["Từ chối + chỉ đường: lịch chính thức / TA<br/>code thay câu mặc định nếu có mã phòng hoặc email"]
+    M -->|"JSON hỏng"| H
+  
+  
   ```
+  
 - **AI dựa vào đâu** — mỗi công cụ (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
@@ -122,7 +132,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 - Kết quả: lượt 1 __/__ (__%) · lượt 2 __/__ (__%) — run ID: __ / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
-- Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên) *(chờ simulate)*
+- Persona + giá: `cost/personas.yaml` (3 persona; giá `gemini-3.1-flash-lite` 0.25 / 1.50 và `gemini-4-hydrogen` 1.50 / 7.50 USD / 1M token theo bảng chung BTC) · quy mô 300 · 700 · 1.000 học viên · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên) *(chờ simulate với model thật)*
 - Chi phí / task thành công: __ (model __) · __ (model __)
 - Chi phí / tháng ở quy mô thật: thấp __ · cơ sở __ · cao __ → chi tiết `cost/cost-estimate.md`
 - So với impact / người / tháng (§2): __
@@ -134,7 +144,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 
 ## §10. Phân công & changelog
 - Phân công có tên: Mai Văn Thanh (đội trưởng — bằng chứng: khảo sát + đếm tin Discord, `evidence/`) · Lê Quang Trường (bộ câu thử + metric + chuẩn đạt, `eval/`, §7) · Lục Anh Tuấn (bản chạy thử: công cụ tra thông báo / lịch, nối model, `codebase/`) · Nguyễn Lê Hải Nam (mô phỏng chi phí + slide, `cost/`, `demo-slides.pdf`).
-- Dùng AI vào việc gì: Claude Code soạn bản nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; nhóm đọc lại và sửa. Chi tiết `docs/ai-usage.md`.
+- Dùng AI vào việc gì: Claude Code soạn bản nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; nhóm đọc lại và sửa. Chi tiết `docs/ai-usage.md`.hạn nộp / phòng học có nguồn
 - Nhật ký thay đổi — **mọi thay đổi sau CP2 19:30 Thứ Sáu 27/11 phải có dòng ở đây**:
 
 **CP2 → CP4** (vd thu hẹp lát cắt, hỏi thêm người dùng, lần cải tiến trước lượt 2)

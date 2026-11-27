@@ -3,50 +3,51 @@
 # Mọi số phải có nguồn (data / phỏng vấn / khảo sát / quy mô khoá có nguồn) hoặc ghi rõ "(tự ước tính)".
 # Chạy: python run.py simulate --try   (10 phiên, kiểm khung — làm trước CP3)
 #       python run.py simulate         (đủ số phiên dưới đây — bản nộp CP4)
-# Bài: trợ lý trả lời hạn nộp lab / phòng học buổi tới cho học viên L3 (spec.md §4).
-# CHỜ: số lần dùng của persona thay bằng số khảo sát (evidence/survey) khi có — hiện là (tự ước tính).
+# Bài: trợ lý trả lời phòng / giờ học buổi tới cho học viên L3 (spec.md §4), nguồn data/lich-l3-k9.csv.
+# Tần suất lấy từ data lịch BTC (giả lập Khoá 9, 15/04–08/05/2027 = 24 ngày, quy ra 30 ngày);
+# tỉ lệ (share) và số lượt / phiên là (tự ước tính) — thay bằng số khảo sát (evidence/survey) khi có.
 
 sessions: 50        # số phiên mô phỏng — bản nộp ≥50
 seed: 42            # giữ cố định để chạy lại ra cùng chuỗi phiên
 
-users:              # học viên lớp L3 khoá AI20K K5 dùng trợ lý trên Discord
+users:              # học viên dùng trợ lý trên Discord của khoá
   low: 300
   base: 700
   high: 1000
-  source: "base: lớp L3 hơn 700 học viên theo README hackathon (repo đề) — cần đối chiếu lại. low 300: chỉ ~40% học viên hỏi qua trợ lý (tự ước tính). high 1000: mở thêm cho lớp khác dùng chung kênh (tự ước tính)"
+  source: "base 700: lớp L3 hơn 700 học viên · high 1000: cả khoá hơn 1.000 — repo đề 02-guide.md mục 4.2. low 300: ~40% học viên L3 hỏi qua trợ lý (tự ước tính)"
 
-personas:           # chia theo mức hỏi hạn nộp / phòng học; share cộng lại = 1
-  - name: hoi_it            # chỉ hỏi khi sắp đến hạn lab lớn
+personas:           # share cộng lại = 1
+  - name: hoi_it              # chỉ hỏi khi không chắc, khoảng 1 lần / tuần
     share: 0.5
-    uses_per_month: 2
-    turns_per_session: 1
-    source: "(tự ước tính) — thay bằng khảo sát: số lần tra hạn / phòng mỗi tuần"
-  - name: hoi_moi_tuan      # hỏi hạn lab của tuần + phòng buổi tới
-    share: 0.35
     uses_per_month: 4
-    turns_per_session: 2
-    source: "(tự ước tính) — thay bằng khảo sát: số lần tra hạn / phòng mỗi tuần"
-  - name: hoi_truoc_moi_buoi # hỏi phòng trước hầu hết các buổi học, hỏi lại khi có thông báo đổi
+    turns_per_session: 1
+    source: "(tự ước tính) — thay bằng khảo sát: số lần tra phòng / lịch mỗi tuần"
+  - name: hoi_khi_doi_phong   # hỏi lại mỗi khi phòng buổi của lớp mình bị sửa
+    share: 0.35
+    uses_per_month: 13
+    turns_per_session: 1
+    source: "uses: data/lich-su-sua-l3-k9.csv — 10 (L3A) / 11 (L3B) buổi bị sửa phòng trong 24 ngày → ≈13 / 30 ngày. share (tự ước tính)"
+  - name: hoi_truoc_moi_lab   # hỏi phòng + giờ trước mọi buổi LAB (phòng LAB đổi theo buổi)
     share: 0.15
-    uses_per_month: 8
-    turns_per_session: 3
-    source: "(tự ước tính) — thay bằng khảo sát + đếm tin hỏi lặp trên Discord (evidence/data-mining.md)"
+    uses_per_month: 17
+    turns_per_session: 2
+    source: "uses: data/lich-l3-k9.csv bảng chính — 14 buổi LAB / lớp trong 24 ngày → ≈17 / 30 ngày. share, turns (tự ước tính)"
 # Mỗi lượt hỏi lấy ngẫu nhiên một đầu vào trong eval/benchmark.csv (type thuong và kho).
 # Persona hỏi kiểu riêng: thêm vào persona đó
 #     types: [thuong, kho, tu_choi]
 # hoặc
 #     inputs: ["câu hỏi kiểu 1", "câu hỏi kiểu 2"]
 
-prices:             # USD / 1 triệu token, gói trả phí Standard (giá ra đã gồm token suy nghĩ). ≥2 mức model
-                    # Tên model phải khớp MODEL_NAME bản chạy thử dùng để khung ghép token đo thật với giá.
+prices:             # USD / 1 triệu token, giá chuẩn — bảng chung BTC: repo đề further-reading/model-prices.md (BTC xem 25/11/2026)
+                    # Mọi giá được nhân với token đo thật, kể cả khi model đo khác model tính giá (docs/connect-model.md mục 5).
   - model: gemini-3.1-flash-lite
     input: 0.25
     output: 1.50
-    source: "https://ai.google.dev/gemini-api/docs/pricing · xem 27/11/2026 · mức rẻ"
-  - model: gemini-3.6-flash
+    source: "further-reading/model-prices.md (repo đề) · tầng Nhỏ · https://ai.google.dev/gemini-api/docs/pricing · xem 25/11/2026"
+  - model: gemini-4-hydrogen
     input: 1.50
     output: 7.50
-    source: "https://ai.google.dev/gemini-api/docs/pricing · xem 27/11/2026 · mức mạnh · giá gốc từ 01/01/2027 (đến 31/12/2026 đang khuyến mãi 0.75 / 3.75) — dùng giá gốc vì tính chi phí dùng lâu dài"
+    source: "further-reading/model-prices.md (repo đề) · tầng Lớn · https://ai.google.dev/gemini-api/docs/pricing · xem 25/11/2026"
 
 usd_to_vnd:         # tuỳ chọn: điền thì bản tóm tắt in thêm tiền Việt
   rate:
