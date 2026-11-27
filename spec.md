@@ -94,6 +94,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
   - Mọi mã phòng và mọi giờ trong câu trả lời phải nằm trong đúng ô đã trích, và ô đó phải đã chốt. Sai thì chuyển TA.
   - Hỏi hạn nộp / link nộp / có phải nộp bài không (dữ liệu không có) mà model vẫn trả lời → chuyển TA.
   - Không nói lớp mà L3A và L3B cùng có session được hỏi → hỏi lại lớp.
+  - Hỏi phòng của một lớp cụ thể mà buổi khớp chưa chốt phòng → luôn chuyển TA (dù model chọn trả lời hay hỏi lại).
   - Từ chối không được nhắc mã phòng hay email. Chuyển TA mà nêu phòng thì phải ghi "dự kiến / chưa xác nhận".
   - Model trả sai định dạng → chuyển TA.
   - Chuỗi trích `file · sheet · ô` do code viết từ dữ liệu.
@@ -149,7 +150,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
-|  |  |  |
+| 19:06 Thứ Sáu 27/11 | **Lần cải tiến trước lượt 2** (`codebase/`): (1) `tong_quan_khoa` thêm mục `co_trong_du_lieu` (có lịch chính thức / thời khoá biểu), sửa `khong_co_trong_du_lieu` chỉ nói "link (URL)… file lịch" · (2) prompt: câu hỏi chung chung trong phạm vi → hỏi lại lớp / ngày / buổi, không chuyển TA; câu chứa giả định sai về lịch → kiểm bằng tổng quan và sửa · (3) code không đọc "thứ X" thành ngày khi câu hỏi về "bắt đầu học / khai giảng" · (4) code: hỏi phòng của một lớp mà buổi chưa chốt → luôn chuyển TA | Nhóm lỗi lượt 1 "câu hỏi chung chung" (B21, B25, B26 — `eval/report.md` mục 2): B25 do mục cũ ghi "link tài liệu / thời khoá biểu" khiến model nói chưa có thời khoá biểu; B26 do code đọc "thứ 2" thành 03/05. (4) chặn hồi quy thấy khi chạy thử: sau (2), B08, B09, B14 (phòng chưa chốt) bị trả lời / hỏi lại thay vì chuyển TA |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

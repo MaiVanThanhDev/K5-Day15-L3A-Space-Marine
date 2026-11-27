@@ -159,8 +159,11 @@ def tong_quan_khoa() -> dict:
         "buoi_gio_rieng": rieng,
         "nghi_le": le,
         "vi_du_hoc_thu_7": t7,
-        "khong_co_trong_du_lieu": "hạn nộp, link nộp bài, link tài liệu / thời khoá biểu, danh sách chia học viên vào từng phòng, "
-                                  "lịch họp nhóm, điểm, điểm danh",
+        "co_trong_du_lieu": "lịch học chính thức (thời khoá biểu) của L3A, L3B từ %s đến %s: ngày, buổi, giờ, session, chủ đề, "
+                            "phòng (khi đã chốt), hình thức, nghỉ lễ; lịch sử đổi phòng / đổi giờ"
+                            % (days[0].strftime("%d/%m/%Y"), days[-1].strftime("%d/%m/%Y")),
+        "khong_co_trong_du_lieu": "hạn nộp, có phải nộp bài không, link (URL) nộp bài / tài liệu / file lịch, danh sách chia học viên "
+                                  "vào từng phòng, lịch họp nhóm, điểm, điểm danh",
     }
 
 
