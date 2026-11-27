@@ -2,3 +2,8 @@
 # KHÔNG cần pip install để chạy.
 # Nhóm dùng thêm thư viện (vd SDK của nhà cung cấp model) thì ghi tên gói vào đây, mỗi dòng một gói,
 # và ghi lệnh cài vào README: python -m pip install -r requirements.txt
+#
+# Đọc file xlsx của data BTC (data/training-ops/) khi chạy data/extract_training_ops.py.
+# Bản chạy thử chỉ đọc data/lich-l3-k9.csv (thư viện chuẩn), không cần hai gói này.
+pandas
+openpyxl
