@@ -36,12 +36,27 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): __
 - **Lát cắt MỘT CÂU** (1 người dùng · 1 việc · 1 quyết định AI · 1 kết quả):
 - Không làm (≥3 điều):
 - **Sơ đồ** (ảnh / Mermaid / draw.io): [chèn ở đây]
-- **Hình dạng:** [ ] workflow cố định · [ ] một agent · [ ] nhiều agent — 2 dòng lý do, và vì sao **không** chọn hình dạng phức tạp hơn:
+- **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent — Mọi câu hỏi đi cùng một đường: code đọc ngày / lớp → tra thông báo + lịch → model quyết định 1 lần (answer / ask / handoff / refuse) → code kiểm nguồn. Không chọn agent vì chỉ có 2 công cụ tra cứu cố định, không cần AI tự chọn bước; thêm vòng lặp chỉ thêm token và thêm chỗ sai.
+- **Luồng** (`codebase/agent.py`):
+  ```mermaid
+  flowchart LR
+    Q[Câu hỏi học viên] --> P[code: đọc ngày, lớp]
+    P --> S[search_announcements] & G[get_schedule]
+    S & G --> C[Căn cứ + status do code tính]
+    C --> M[model: answer / ask / handoff / refuse, JSON]
+    M --> V{code: nguồn hien_hanh?}
+    V -- có --> A[Trả lời + link nguồn lấy từ dữ liệu]
+    V -- không --> H[draft_ta_handoff: bản nháp chờ TA duyệt]
+    M -- ask --> K[Hỏi lại 1 điều thiếu]
+    M -- refuse --> R[Từ chối + chỉ đường]
+  ```
 - **AI dựa vào đâu** — mỗi công cụ (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
   |---|---|---|---|
-  |  |  |  |  |
+  | `search_announcements` | câu hỏi (str) | ≤6 thông báo kèm `status` do code tính: `hien_hanh` · `da_bi_thay` · `mau_thuan` · `chua_chot` · `khong_chinh_thuc` | Không (chỉ đọc `data/announcements.json`) |
+  | `get_schedule` | ngày `YYYY-MM-DD`, lớp `L3A`/`L3B`/rỗng | các buổi trong ngày + phòng từ thông báo phòng mới nhất, `room_status`, id nguồn | Không (chỉ đọc) |
+  | `draft_ta_handoff` | câu hỏi, lý do chuyển | bản nháp tin nhắn tag TA, `status: ban_nhap_cho_duyet` | Có nếu gửi → **chỉ tạo bản nháp**, người duyệt mới gửi |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm — lý do (sai thì ai chịu gì, sửa đắt hay rẻ):
 - **Chỗ chặn rủi ro** (rủi ro lớn nhất của lát cắt bị chặn ở đâu, bằng gì):
@@ -54,7 +69,8 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): __
   |  |  |
   |  |  |
 
-- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật:
+- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: dữ liệu thông báo / lịch ở `data/announcements.json` là `synthetic` (nhóm tự viết, link `.example` giả, "hôm nay" cố định 27/11/2026, đổi bằng `APP_TODAY` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py`. Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
+- **Chặn trong code** (`codebase/agent.py`, không phụ thuộc model): `answer` chỉ được trích thông báo `hien_hanh` có trong căn cứ của câu đó, sai thì đổi thành chuyển TA · link nguồn do code chèn từ dữ liệu, model không tự viết link · model trả sai định dạng thì chuyển TA · câu hỏi đặt trong `<cau_hoi>`, prompt ghi rõ đó là dữ liệu chứ không phải lệnh.
 
 ## §5. Chỗ khó — 4 lớp + ≥6 kịch bản + 2 tấn công *(guide 2.3)*
 
