@@ -6,13 +6,13 @@ README của nhóm có mục "Dùng AI vào việc gì" (2–3 dòng, bắt bu�
 
 | Việc | Công cụ AI | AI làm gì | Người kiểm/sửa gì | Ai phụ trách |
 |---|---|---|---|---|
-| Code bản chạy thử | Claude Code | Viết `codebase/tools.py`, `agent.py`, phần gọi API trong `ai.py`, dữ liệu mẫu `data/announcements.json` | __ (Tuấn ghi phần đã đọc / sửa / chạy thử) | Lục Anh Tuấn |
+| Code bản chạy thử | Claude Code | Viết `codebase/tools.py`, `agent.py`, phần gọi API trong `ai.py`; bản sau viết lại `tools.py`, `agent.py` theo data `data/lich-l3-k9.csv` | __ (Tuấn ghi phần đã đọc / sửa / chạy thử) | Lục Anh Tuấn |
 | Prompt / thiết kế lời gọi mô hình | Claude Code | Viết bản đầu `SYSTEM` trong `agent.py` (4 quyết định, JSON) | __ | Lục Anh Tuấn |
 | Đào data (viết script đếm, gợi ý nhãn) | | | Kiểm tay __ dòng, khớp __ | |
 | Rà câu hỏi phỏng vấn / khảo sát | | Chỉ rà câu dẫn dắt | | |
 | Viết câu thử (benchmark) | | | Mỗi câu thử có `source`; câu thử AI viết được ghi rõ | |
 | Sinh data `synthetic` (nếu có) | | | Seed __ · kiểm tay __ dòng | |
 | Chấm cột `pass` bằng LLM (nếu có) | | | Kiểm tra thủ công __ câu thử, khớp __/__ | |
-| Slide, văn bản | | | | |
+| Slide, văn bản | Claude Code | Soạn nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; điền `cost/personas.yaml` (tra giá Gemini trên trang giá chính thức, persona tự ước tính) và mục 1 `cost/cost-estimate.md` | Nhóm đọc lại spec; Nam kiểm giá với link nguồn, thay số persona bằng số khảo sát khi có | Nguyễn Lê Hải Nam |
 
 **Không dùng AI để:** tạo người được phỏng vấn, trích dẫn, câu trả lời khảo sát; sửa kết quả các lượt đã chạy (`eval/run-*.csv`, `cost/simulate-*.csv`, `traces/`).
