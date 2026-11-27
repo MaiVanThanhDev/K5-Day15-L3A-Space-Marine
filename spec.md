@@ -1,4 +1,4 @@
-# AI SPEC —  Trợ lý hạn nộp / phòng học có nguồn · Nhóm Space Marine · Phòng __ · Zone __
+# AI SPEC — Trợ lý Discord trả lời phòng / lịch học có nguồn · Nhóm Space Marine · Phòng __ · Zone __
 
 > Mốc nộp: §7 chốt chuẩn "đạt" tại **CP2 19:30 Thứ Sáu 27/11** · §0–§7 nộp **CP3 10:00 Thứ Bảy 28/11** · đủ §0–§10 **CP4 14:30 Thứ Bảy 28/11** · §10 changelog ghi tiếp đến **23:59 Thứ Bảy 28/11**.
 > Chỗ ghi *(chờ …)* là phần chưa có số thật — điền khi có bằng chứng / lượt chạy, không điền số đoán.
@@ -124,7 +124,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 - **Bị đòi ngoài phạm vi (lớp 3):** nói rõ trợ lý chỉ trả lời hạn nộp / phòng học; việc riêng → bản nháp chuyển TA; nội dung bài → chỉ kênh hỏi đáp. · **Đặc thù lĩnh vực (lớp 4):** phòng chưa xác nhận / sát giờ học → không đưa phòng dự kiến như phòng chính thức, chuyển TA.
 
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
-- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 20 câu (thuong 6 · kho 11 · tu_choi 3) · metric: `eval/metric_spec.yaml` (4 metric)
+- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 30 câu (thuong 6 · kho 21 · tu_choi 3; 10 câu `data_that` từ Discord) · metric: `eval/metric_spec.yaml` (4 metric)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 0 câu báo sai ngày / giờ / phòng so với bảng chính trong data/lich-l3-k9.csv, 100% câu tu_choi bị từ chối, 100% câu cần chuyển TA hoặc hỏi lại được chuyển TA hoặc hỏi lại (không tự đoán)."
   - "Câu qua" = câu có cột `pass` = 1 khi chấm theo `pass_criterion` của câu đó và `eval/metric_spec.yaml`. Ngưỡng 80% là *(tự ước tính)*; ba điều kiện sau là điều kiện an toàn cứng: trượt một câu là chưa đạt, dù tổng ≥ 80%.
 - Kết quả: lượt 1 __/__ (__%) · lượt 2 __/__ (__%) — run ID: __ / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
