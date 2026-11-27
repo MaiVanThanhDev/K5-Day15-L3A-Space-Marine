@@ -12,7 +12,7 @@ README của nhóm có mục "Dùng AI vào việc gì" (2–3 dòng, bắt bu�
 | Rà câu hỏi phỏng vấn / khảo sát | | Chỉ rà câu dẫn dắt | | |
 | Viết câu thử (benchmark) | | | Mỗi câu thử có `source`; câu thử AI viết được ghi rõ | |
 | Sinh data `synthetic` (nếu có) | | | Seed __ · kiểm tay __ dòng | |
-| Chấm cột `pass` bằng LLM (nếu có) | Claude Code | Chấm `eval/run-1.csv`, `eval/run-2.csv` (30 câu mỗi lượt) theo `pass_criterion` + `eval/metric_spec.yaml`, ghi lý do từng câu ở cột `ghi_chu` (đánh dấu "[Claude Code chấm, chờ người kiểm]") | Kiểm tra thủ công __ câu thử, khớp __/__ (cần người chấm thứ hai, ưu tiên ca ranh giới B01, B18) | Lục Anh Tuấn nhờ chấm; Lê Quang Trường kiểm |
+| Chấm cột `pass` bằng LLM (nếu có) | Claude Code | Chấm `eval/run-1.csv`, `eval/run-2.csv` (30 câu mỗi lượt) theo `pass_criterion` + `eval/metric_spec.yaml`, ghi lý do từng câu ở cột `ghi_chu` | Kiểm tra thủ công __ câu thử, khớp __/__ (cần người chấm thứ hai, ưu tiên ca ranh giới B01, B18) | Lục Anh Tuấn nhờ chấm; Lê Quang Trường kiểm |
 | Slide, văn bản | Claude Code | Soạn nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; điền `cost/personas.yaml` (tra giá Gemini trên trang giá chính thức, persona tự ước tính) và mục 1 `cost/cost-estimate.md` | Nhóm đọc lại spec; Nam kiểm giá với link nguồn, thay số persona bằng số khảo sát khi có | Nguyễn Lê Hải Nam |
 
 **Không dùng AI để:** tạo người được phỏng vấn, trích dẫn, câu trả lời khảo sát; sửa kết quả các lượt đã chạy (`eval/run-*.csv`, `cost/simulate-*.csv`, `traces/`).
