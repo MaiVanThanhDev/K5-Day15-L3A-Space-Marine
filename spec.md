@@ -20,7 +20,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 - Việc họ cố làm xong: *tra đúng hạn nộp lab và phòng học buổi tới, trước khi nộp bài / đi học.*
 - Hôm nay họ giải bằng: tự lục thông báo trên Discord / email / LMS hoặc hỏi lại trên kênh. Hỏng ở: thông báo rải rác, bản cũ bị thay mà không biết bản nào mới nhất, phải chờ người trả lời. Chưa bỏ vì: đó là nguồn chính thức duy nhất, và hỏi TA vẫn ra câu trả lời đúng (chỉ chậm).
 - Pain: học viên L3 cần biết hạn nộp hoặc phòng học buổi tới — phải lục thông báo rải rác, có khi đọc nhầm bản cũ — hỏi lại rồi chờ hoặc tự đoán — có người nộp trễ hoặc đi nhầm phòng; TA mất giờ trả lời lặp lại cùng một câu.
-- Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`): *(chờ)* — kế hoạch: (1) đếm tin kênh hỏi đáp Discord: x/N tin hỏi hạn/phòng/lịch, bao nhiêu tin đã có đáp án trong thông báo; (2) khảo sát ≥20 học viên L3 ngoài nhóm: số lần tra / tuần, phút mỗi lần, đã từng nhầm chưa; (3) hỏi 1–2 TA / lab coach.
+- Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`): khảo sát 27/11/2026, n = 18 học viên (20 phiếu; 1 lab coach, 1 người lạ tách riêng): **16/18 (89%)** tra hạn / phòng / lịch ≥2 lần trong 1 tuần qua (trung vị 5 lần); tra lịch 13/18, hạn nộp 12/18, phòng 11/18; **7/18 (39%)** tìm được nhưng không chắc là bản mới nhất; **7/18 (39%)** từng nhầm (hạn nộp 6/18, phòng 1/18); 8/18 phải hỏi người khác; 9/18 tìm được trong dưới 2 phút. Discord kênh hỏi-đáp: 2/18 bài hỏi hạn / phòng / lịch (n nhỏ). Kết luận: giả thuyết đúng một phần — tra thường xuyên và hay nhầm là có thật, nhưng pain chính là không chắc thông tin mới nhất và nhầm hạn nộp, không phải thời gian tra.
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 

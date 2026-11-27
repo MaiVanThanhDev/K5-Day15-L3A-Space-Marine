@@ -28,8 +28,8 @@ Tái tạo: tải repo đề vào `_de-bai/` (đã có trong `.gitignore`), `pyt
 |---|---|
 | Dùng để làm gì | Đào bằng chứng pain (`evidence/data-mining.md`, Mai Văn Thanh) · nguồn câu thử `data_that` |
 | Từ đâu | Kênh Discord công khai của khoá |
-| Xử lý những bước gì | lọc __ · ẩn danh __ (bỏ tên, mã học viên) |
-| Số dòng / số đoạn | __ |
-| Phiên bản / ngày lấy | __ |
+| Xử lý những bước gì | Chép tay từ Discord (không xuất file). **Lọc:** chỉ giữ tin học viên hỏi về lịch / phòng / hạn nộp / nộp bài / điểm danh; bỏ 3 tin trùng ý để bộ câu thử ≤30 câu. **Ẩn danh:** bỏ tên người gửi, bỏ ảnh đính kèm; giữ nguyên câu chữ (kể cả lỗi gõ) và giờ gửi. Đếm riêng kênh forum hỏi-đáp: đọc tay 18 bài (`evidence/data-mining.md`) |
+| Số dòng / số đoạn | 13 tin chép được → 10 tin làm câu thử B21–B30 (`data_that`). Kênh hỏi-đáp: 18 bài, 2 bài hỏi hạn / phòng / lịch |
+| Phiên bản / ngày lấy | Tin gửi từ 04/11 đến 21/11/2026; chép ngày 27/11/2026 |
 | Nhãn | thật |
-| Giới hạn | __ |
+| Giới hạn | Chép tay, không phải toàn bộ kênh → lệch theo người chép (chọn tin hỏi lịch / phòng). Ngày, phòng trong tin là của khoá thật, **không khớp** data Khoá 9 → `expected` vẫn lấy từ `data/lich-l3-k9.csv` với mốc 21:00 27/04/2027 (câu hỏi điều data không có → chuyển TA). n nhỏ, không dùng làm số bằng chứng chính (nguồn chính là khảo sát, `evidence/summary.md`) |

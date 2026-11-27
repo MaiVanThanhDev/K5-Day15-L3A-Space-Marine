@@ -6,6 +6,12 @@
 - Đối tượng: học viên L3 **ngoài nhóm Space Marine**. Ngưỡng: ≥20 người.
 - Không thu tên, email, mã học viên (trừ câu 10 nếu người trả lời tự để lại).
 
+## Khác với bản thực tế đã gửi
+
+- Câu 1 trên form thật có 3 lựa chọn: Học Viên · LabCoach · Người lạ (không tách L3A / L3B).
+- Form thật không có câu 10 (liên hệ) → `results.csv` không có thông tin nhận ra người trả lời. Cột dấu thời gian chỉ giữ ngày.
+- Kết quả: 20 phiếu, ngày 27/11/2026, thu từ 17:02 đến 18:10.
+
 ## Tin nhắn mời (dán kèm link)
 
 > Chào cả lớp, nhóm Space Marine (L3A) đang tìm hiểu cách mọi người tra **hạn nộp lab, phòng học, lịch học** trong khoá. Form 2 phút, 10 câu, không thu tên hay email, chỉ hỏi về những lần đã xảy ra. Nhờ mọi người điền giúp trước __h nhé, cảm ơn nhiều! 🙏 [link]

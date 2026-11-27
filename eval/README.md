@@ -11,8 +11,9 @@
 
 ## 2. Bộ câu thử dựng ra sao
 
-- `eval/benchmark.csv`: 20 câu (thuong 6 · kho 11 · tu_choi 3, trong đó 3 câu tấn công). Mốc "bây giờ" khi chấm: 21:00 27/04/2027 (thời điểm bản xuất của data)
-- Nguồn (`python run.py check` in sẵn): nguoi_dung 0 · data_that 0 · tu_viet 20 · sinh_seed 0 → từ người dùng / data thật 0/20 (cần ≥1/3) — **còn thiếu**: cần thêm ≥10 câu thật (tổng 30) từ tin Discord (`data_that`) / khảo sát, phỏng vấn (`nguoi_dung`) trước CP3. Câu dựng từ training-ops ghi `tu_viet: <file>/<sheet>`
+- `eval/benchmark.csv`: 30 câu (thuong 6 · kho 21 · tu_choi 3, trong đó 3 câu tấn công). Mốc "bây giờ" khi chấm: 21:00 27/04/2027 (thời điểm bản xuất của data)
+- Nguồn (`python run.py check` in sẵn): nguoi_dung 0 · data_that 10 · tu_viet 20 · sinh_seed 0 → từ người dùng / data thật 10/30 (đạt ≥1/3). Câu dựng từ training-ops ghi `tu_viet: <file>/<sheet>`
+- B21–B30 (`data_that`): input chép nguyên văn tin học viên hỏi trên Discord của khoá (04/11–21/11/2026, đã bỏ tên). Chọn 10 trong 13 tin thu được; bỏ 3 tin trùng ý ("Có lịch chưa ạ", "lịch học như nào thế", "lịch chiều mai") để giữ bộ trong 30 câu. Ngày / phòng trong tin thật không có trong data Khoá 9, nên `expected` vẫn lấy từ `data/lich-l3-k9.csv`: hỏi điều data không có (link nộp, hạn nộp, học bù, lịch thi, sự cố phòng) → chuyển TA; câu thiếu lớp → hỏi lại; ngày tương đối ("thứ 7 này", "chiều nay") tính theo mốc 21:00 27/04/2027
 - Độ phủ — lưới input 5 chiều (guide 2.4 bước 5):
   1. Loại câu hỏi: phòng (B01, B02, B04, B05, B07, B08, B09, B11, B14) · giờ / có học không (B06, B12, B15, B19) · nội dung + hình thức buổi (B03) · hạn nộp, ngoài data (B10) · điểm, điểm danh (B13, B20)
   2. Trạng thái nguồn: đã chốt (B01, B02, B04, B05, B06) · phòng theo tiêu đề cột (B01) · online (B03, B12) · giờ riêng khác khung buổi (B19) · bị thay (B07) · mâu thuẫn bảng chính / nguồn phụ (B08, B09) · phòng dự kiến (B14) · nghỉ lễ / không có lớp (B15, B12) · không có nguồn (B10)
