@@ -26,13 +26,21 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 
 | Hướng | Bao nhiêu người gặp | Bao nhiêu lần / tháng | Mỗi lần tốn gì | Impact / tháng | Làm kịp không | Chọn? |
 |---|---|---|---|---|---|---|
-| A2 thu hẹp: hạn nộp + phòng học, trả lời có nguồn hoặc chuyển TA | *(chờ khảo sát)* | *(chờ khảo sát)* | *(chờ)* phút tra + rủi ro nộp trễ / nhầm phòng; phút TA trả lời | *(chờ)* | Kịp: 1 nguồn dữ liệu (thông báo + lịch phòng), workflow cố định | ✅ |
-| A2 rộng: trả lời mọi câu hỏi trên Discord (nội dung bài, lỗi code, thủ tục) | | | | | Không kịp: nhiều nguồn, khó đo đúng/sai | ❌ |
-| | | | | | | |
+| A2 thu hẹp: hạn nộp + phòng học, trả lời có nguồn hoặc chuyển TA | ≈622 học viên L3 (89% × 700) | ≈21 lần / người (5 lần / tuần × 30/7) | ≈6,1 phút tra / lần + rủi ro nhầm: 7/18 (39%) từng nhầm hạn / phòng / giờ | ≈81.900 phút ≈ 1.365 giờ học viên / tháng (trần) | Kịp: 1 nguồn dữ liệu (thông báo + lịch phòng), workflow cố định | ✅ |
+| A2 rộng: trả lời mọi câu hỏi trên Discord (nội dung bài, lỗi code, thủ tục) | *(không đo — khảo sát chỉ hỏi hạn / phòng / lịch)* | *(không đo)* | *(không đo)* | *(không đo)* | Không kịp: nhiều nguồn, khó đo đúng/sai | ❌ |
 
-- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __ — nguồn từng thừa số: *(chờ: khảo sát + đếm Discord; số nào không có nguồn ghi *(tự ước tính)*)*
+- **Impact / tháng** của hướng chọn = 622 người × 21,4 lần × 6,1 phút ≈ **81.900 phút ≈ 1.365 giờ / tháng** (≈131 phút / học viên / tháng). Nguồn từng thừa số:
+  - **Người:** 700 học viên lớp L3 (repo đề `02-guide.md` mục 4.2, như `cost/personas.yaml`) × 16/18 (89%) đã tra ≥2 lần / tuần (khảo sát câu 3, `evidence/summary.md`).
+  - **Lần:** trung vị 5 lần / tuần (khảo sát câu 3, 17 phiếu quy được ra số) × 30/7 tuần ≈ 21,4 lần / tháng.
+  - **Phút:** trung bình có trọng số câu 6, lấy trung điểm mỗi khoảng *(tự ước tính cách quy đổi)*: dưới 2 phút → 1 · 2–5 → 3,5 · 5–15 → 10 · 15–30 → 22,5 ⇒ (9×1 + 4×3,5 + 2×10 + 3×22,5) / 18 ≈ 6,1 phút. Lệch về đuôi: 50% dưới 2 phút, 3/18 mất 15–30 phút.
+  - **Đây là trần, không phải số tiết kiệm được:** (a) học viên vẫn mất thời gian hỏi trợ lý; (b) lát cắt chỉ có lịch / phòng (data lịch không có hạn nộp), trong khi lần tra gần nhất có 12/18 là hạn nộp; (c) phút ở câu 6 là của *lần gần nhất*, có thể không đại diện cho mọi lần. Giá trị chính của trợ lý là giảm nhầm (7/18 từng nhầm, 7/18 không chắc bản mới nhất), không chỉ giảm phút.
+  - Phía TA: không đo (không phỏng vấn TA); 3/18 hỏi trên kênh hỏi đáp và 2/18 hỏi TA / lab coach (câu 5).
 - Hướng ĐÃ LOẠI + vì sao: A2 rộng — phạm vi quá lớn cho hackathon, không viết được tiêu chí "đúng" kiểm chứng được cho mọi loại câu hỏi; sai về nội dung bài khó phát hiện hơn sai về hạn / phòng.
-- Số lần / tháng của từng kiểu người dùng (dùng cho persona ở §8): *(chờ khảo sát — chia ít nhất: hỏi ít, hỏi vừa, hỏi nhiều)*
+- Số lần / tháng của từng kiểu người dùng (dùng cho persona ở §8), từ khảo sát câu 3 (n = 18; ngưỡng chia nhóm *(tự ước tính)*):
+  - **Hỏi ít** (0–2 lần / tuần): 2/18 (11%) — cả 2 đều 0 lần tuần qua.
+  - **Hỏi vừa** (3–6 lần / tuần): 8/18 (44%) — trung vị 4,5 lần / tuần ≈ 19 lần / tháng.
+  - **Hỏi nhiều** (≥7 lần / tuần): 8/18 (44%; gồm 1 phiếu "Rất nhiều lần.") — trung vị 8 lần / tuần ≈ 34 lần / tháng.
+  - `cost/personas.yaml` hiện vẫn dùng tần suất từ data lịch BTC + share *(tự ước tính)*; cập nhật theo các nhóm này ở CP4 (§8).
 
 ## §3. Giải pháp tương tự *(guide 2.1)*
 - **Kênh thông báo + tin ghim trên Discord**: đáng học — một chỗ chính thức, có link gốc · đáng né — tin ghim không tự gỡ khi có thông báo thay thế, học viên phải tự đọc hết · mình khác: trả đúng **bản mới nhất** cho câu hỏi cụ thể, kèm link.
