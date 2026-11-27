@@ -44,11 +44,18 @@
 
 | Lượt | Run ID | Model | Cấu hình (prompt / công cụ / thay đổi) | Đạt / tổng | % | Đạt chuẩn? |
 |---|---|---|---|---|---|---|
-| 1 | | | | __/__ | | |
-| 2 | | | | __/__ | | |
+| 1 | `run-1@20261127-184523` | `gemini-3.1-flash-lite` | commit `5def3dd`: workflow cố định, 1 lần gọi model; công cụ `tong_quan_khoa`, `tra_lich` (lọc ngày / buổi / lớp / session / phòng), `soan_chuyen_ta`; chặn bằng code sau model | 24/30 | 80% | Chưa (B21, B25 cần hỏi lại nhưng chuyển TA) — lần chấm đầu 25/30, sửa B27 thành 0 khi chấm lượt 2 (xem `eval/report.md` mục 1) |
+| 2 | `run-2@20261127-190717` | `gemini-3.1-flash-lite` | commit `a9dd63e`: như lượt 1 + một lần cải tiến nhắm nhóm "câu hỏi chung chung" (tổng quan khoá có / không có gì, prompt hỏi lại thay vì chuyển TA, không đọc "thứ X" khi hỏi ngày bắt đầu, code chặn phòng chưa chốt → chuyển TA) | 28/30 | 93% | Đạt (nếu không tính B01 là sai phòng — xem `eval/report.md` mục 1) |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 
 ## 6. Lỗi chính
 
-Tóm 2–3 dòng từ `eval/report.md`: nhóm lỗi lớn nhất · đã sửa gì · còn lại gì.
+- **Nhóm lỗi lớn nhất (lượt 1):** câu hỏi chung chung, không nói ngày / buổi / lớp. Trợ lý chuyển TA hoặc hỏi lại sai điều, thay vì dùng tổng quan khoá / lịch sử sửa để hỏi lại đúng hoặc sửa thông tin sai: 3 câu (B21, B25, B26). Nhóm nhỏ hơn: thiếu hoặc gộp chi tiết (B01, B03, B27).
+- **Đã sửa gì:**
+  - Tổng quan khoá nói rõ có / không có gì.
+  - Prompt: câu chung chung thì hỏi lại; câu chứa giả định sai thì sửa.
+  - Code không đọc "thứ X" khi câu hỏi về ngày bắt đầu.
+  - Code chặn phòng chưa chốt → luôn chuyển TA.
+  - Kết quả: nhóm lỗi đó 0/3 → 3/3, tổng 80% → 93%, không câu nào tệ đi.
+- **Còn lại gì:** nhóm "thiếu / gộp chi tiết", gồm B01 (phòng thêm gộp với phòng chính, là ca ranh giới với điều kiện "0 câu sai phòng") và B27 (thiếu "LEC 11"). Câu trả lời còn dao động giữa các lượt.

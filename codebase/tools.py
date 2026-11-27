@@ -1,8 +1,9 @@
 """Công cụ của bài toán — trợ lý lịch học / phòng học cho học viên lớp L3 (spec.md §4).
 
-Hai công cụ, khớp bảng "AI dựa vào đâu" ở spec.md §4:
-    tra_lich(ngay, buoi, lop, session)  tra các buổi học trong bảng chính + nguồn phụ + lịch sử sửa — chỉ đọc
-    soan_chuyen_ta(cau_hoi, ly_do)      soạn BẢN NHÁP tin nhắn cho TA, chờ người duyệt           — KHÔNG tự gửi
+Ba công cụ, khớp bảng "AI dựa vào đâu" ở spec.md §4:
+    tong_quan_khoa()                           khai giảng, khung giờ, nghỉ lễ, buổi giờ riêng… kèm ô nguồn — chỉ đọc
+    tra_lich(ngay, buoi, lop, session, phong)  tra các buổi trong bảng chính + nguồn phụ + lịch sử sửa    — chỉ đọc
+    soan_chuyen_ta(cau_hoi, ly_do)             soạn BẢN NHÁP tin nhắn cho TA, chờ người duyệt              — KHÔNG tự gửi
 
 Dữ liệu: data/lich-l3-k9.csv, data/lich-su-sua-l3-k9.csv (trích từ data BTC training-ops, xem data/DATA_CARD.md).
 Trạng thái mỗi buổi do CODE tính theo quy ước ở data/DATA_CARD.md (không để model tự suy):
@@ -120,19 +121,70 @@ def _session_obj(rows):
     return obj
 
 
+def cell_obj(o):
+    """Một ô bảng chính → dạng buổi như tra_lich trả (dùng khi model trích ô lấy từ tong_quan_khoa)."""
+    return _session_obj([MAIN_CELLS[o]]) if o in MAIN_CELLS else None
+
+
+def _khung_gio(buoi):
+    gios = [r["gio"] for r in MAIN if r["buoi"] == buoi and r["gio"]]
+    return max(set(gios), key=gios.count) if gios else ""
+
+
 @tool
-def tra_lich(ngay: str = "", buoi: str = "", lop: str = "", session: str = "") -> list:
+def tong_quan_khoa() -> dict:
+    """Thông tin chung của lịch Khoá 9 trong bảng chính: ngày khai giảng, buổi đầu tiên của mỗi lớp, ngày cuối,
+    khung giờ buổi sáng / chiều, các buổi có giờ riêng, ngày nghỉ lễ, ví dụ buổi học thứ 7. Mỗi mục kèm ô nguồn.
+    Input: không có. Output: dict. Không tác động ra ngoài."""
+    khai = [r for r in MAIN if "KHAI GIẢNG" in r["ghi_chu"]]
+    khung = {b: _khung_gio(b) for b in ("Sáng", "Chiều")}
+    first = {}
+    for lop in ("L3A", "L3B"):
+        rows = sorted((r for r in MAIN if r["lop"] == lop), key=lambda r: (_date(r["ngay"]), r["buoi"] != "Sáng"))
+        if rows:
+            first[lop] = {"o": rows[0]["o"], "ngay": rows[0]["ngay"], "thu": rows[0]["thu"], "buoi": rows[0]["buoi"],
+                          "gio": rows[0]["gio"], "session": rows[0]["session"]}
+    rieng = [{"o": r["o"], "ngay": r["ngay"], "buoi": r["buoi"], "gio": r["gio"], "lop": r["lop"], "session": r["session"]}
+             for r in MAIN if r["lop"] and r["gio"] and r["gio"] != khung.get(r["buoi"])]
+    le = [{"o": r["o"], "ngay": r["ngay"], "buoi": r["buoi"]} for r in MAIN if "NGHỈ LỄ" in r["ghi_chu"]]
+    t7 = [{"o": r["o"], "ngay": r["ngay"], "buoi": r["buoi"], "lop": r["lop"], "session": r["session"]}
+          for r in MAIN if r["thu"] == "T7" and r["lop"]][:3]
+    days = sorted({_date(r["ngay"]) for r in MAIN})
+    return {
+        "nguon": "teaching-schedule.xlsx · Khoá 9 (GĐ1), bản xuất %s" % AS_OF.strftime("%H:%M %d/%m/%Y"),
+        "khai_giang": [{"o": r["o"], "ngay": r["ngay"], "thu": r["thu"], "buoi": r["buoi"], "gio": r["gio"]} for r in khai],
+        "buoi_hoc_dau_tien": first,
+        "ngay_dau_den_ngay_cuoi": "%s – %s" % (days[0].strftime("%d/%m/%Y"), days[-1].strftime("%d/%m/%Y")),
+        "khung_gio_buoi": khung,
+        "buoi_gio_rieng": rieng,
+        "nghi_le": le,
+        "vi_du_hoc_thu_7": t7,
+        "co_trong_du_lieu": "lịch học chính thức (thời khoá biểu) của L3A, L3B từ %s đến %s: ngày, buổi, giờ, session, chủ đề, "
+                            "phòng (khi đã chốt), hình thức, nghỉ lễ; lịch sử đổi phòng / đổi giờ"
+                            % (days[0].strftime("%d/%m/%Y"), days[-1].strftime("%d/%m/%Y")),
+        "khong_co_trong_du_lieu": "hạn nộp, có phải nộp bài không, link (URL) nộp bài / tài liệu / file lịch, danh sách chia học viên "
+                                  "vào từng phòng, lịch họp nhóm, điểm, điểm danh",
+    }
+
+
+@tool
+def tra_lich(ngay: str = "", buoi: str = "", lop: str = "", session: str = "", phong: str = "") -> list:
     """Tra các buổi học của lớp L3 trong bảng chính (teaching-schedule.xlsx · Khoá 9 (GĐ1)).
-    Input (bỏ trống = không lọc): ngay "dd/mm/yyyy" · buoi "Sáng" / "Chiều" · lop "L3A" / "L3B" · session vd "LAB 13", "LEC 15", "HACKATHON".
+    Input (bỏ trống = không lọc): ngay "dd/mm/yyyy" · buoi "Sáng" / "Chiều" · lop "L3A" / "L3B" · session vd "LAB 13", "LEC 15", "HACKATHON"
+    · phong mã phòng, vd "E402" (nhiều mã cách nhau dấu phẩy) — khớp phòng / phòng thêm hiện tại, hoặc phòng cũ trong lịch sử sửa.
     Output: tối đa 12 buổi {o, ngay, thu, buoi, gio, lop, session, chu_de, hinh_thuc, trang_thai, phong, phong_them,
     phong_du_kien_chua_xac_nhan?, nguon_phu?, lich_su_sua?}; khi lọc theo ngày có cả ô "không có lớp" / "NGHỈ LỄ".
     Không tác động ra ngoài."""
-    if not (ngay or lop or session):
+    if not (ngay or lop or session or phong):
         return []
     want_lop = lop.upper().replace(" ", "")
     want_ses = norm(session)
+    want_rooms = set(rooms_of(phong.upper()))
+    old_room_cells = {o.strip() for h in HISTORY if want_rooms & set(rooms_of(h["truoc"])) for o in h["o"].split(",")}
     picked = []
     for r in MAIN:
+        if want_rooms and not (want_rooms & set(rooms_of(r["phong"] + " " + r["phong_them"])) or r["o"] in old_room_cells):
+            continue
         if ngay and r["ngay"] != ngay:
             continue
         if buoi and norm(r["buoi"]) != norm(buoi):

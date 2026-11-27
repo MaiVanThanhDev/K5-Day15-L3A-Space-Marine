@@ -19,6 +19,8 @@ Nối model thật: điền .env (chép từ .env.example), rồi viết nhánh 
 """
 import json
 import os
+import socket
+import time
 import urllib.error
 import urllib.request
 
@@ -77,16 +79,33 @@ def call_model(system: str, user: str) -> dict:
 
 # ---------------------------------------------------------------- gọi API (chỉ thư viện chuẩn)
 
-def post_json(url, headers, body, timeout=60):
-    """Gửi POST JSON, trả về JSON phản hồi."""
-    req = urllib.request.Request(
-        url, data=json.dumps(body).encode("utf-8"), method="POST",
-        headers=dict({"Content-Type": "application/json"}, **headers))
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        raise RuntimeError("HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300]))
+RETRIES = 2            # gọi lại tối đa 2 lần khi lỗi tạm thời (hết giờ chờ, 429, 5xx)
+RETRY_WAIT = [5, 15]   # giây chờ trước lần gọi lại thứ 1, 2
+
+
+def post_json(url, headers, body, timeout=120):
+    """Gửi POST JSON, trả về JSON phản hồi. Lỗi tạm thời thì gọi lại; lỗi khác (sai key, sai model) báo ngay.
+    Chỉ lần gọi thành công trả token, nên token đếm vẫn là token thật của câu trả lời."""
+    data = None
+    for attempt in range(RETRIES + 1):
+        req = urllib.request.Request(
+            url, data=json.dumps(body).encode("utf-8"), method="POST",
+            headers=dict({"Content-Type": "application/json"}, **headers))
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            break
+        except urllib.error.HTTPError as e:
+            msg = "HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300])
+            if (e.code == 429 or e.code >= 500) and attempt < RETRIES:
+                time.sleep(RETRY_WAIT[attempt])
+                continue
+            raise RuntimeError(msg)
+        except (TimeoutError, socket.timeout, urllib.error.URLError) as e:
+            if attempt < RETRIES:
+                time.sleep(RETRY_WAIT[attempt])
+                continue
+            raise RuntimeError("Gọi model thất bại sau %d lần: %s: %s" % (RETRIES + 1, type(e).__name__, e))
     if SHOW_RAW:
         print(json.dumps(data, ensure_ascii=False, indent=2)[:3000])
     return data
@@ -114,7 +133,9 @@ def call_claude(system, user):
 
 def call_gemini(system, user):
     url = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % MODEL_NAME
-    body = {"contents": [{"role": "user", "parts": [{"text": user}]}]}
+    body = {"contents": [{"role": "user", "parts": [{"text": user}]}],
+            # agent.py cần JSON: bật chế độ trả JSON của Gemini (không có ``` bao quanh)
+            "generationConfig": {"responseMimeType": "application/json"}}
     if system:
         body["systemInstruction"] = {"parts": [{"text": system}]}
     data = post_json(url, {"x-goog-api-key": API_KEY}, body)
