@@ -6,8 +6,8 @@ README của nhóm có mục "Dùng AI vào việc gì" (2–3 dòng, bắt bu�
 
 | Việc | Công cụ AI | AI làm gì | Người kiểm/sửa gì | Ai phụ trách |
 |---|---|---|---|---|
-| Code bản chạy thử | | | | |
-| Prompt / thiết kế lời gọi mô hình | | | | |
+| Code bản chạy thử | Claude Code | Viết `codebase/tools.py`, `agent.py`, phần gọi API trong `ai.py`, dữ liệu mẫu `data/announcements.json` | __ (Tuấn ghi phần đã đọc / sửa / chạy thử) | Lục Anh Tuấn |
+| Prompt / thiết kế lời gọi mô hình | Claude Code | Viết bản đầu `SYSTEM` trong `agent.py` (4 quyết định, JSON) | __ | Lục Anh Tuấn |
 | Đào data (viết script đếm, gợi ý nhãn) | | | Kiểm tay __ dòng, khớp __ | |
 | Rà câu hỏi phỏng vấn / khảo sát | | Chỉ rà câu dẫn dắt | | |
 | Viết câu thử (benchmark) | | | Mỗi câu thử có `source`; câu thử AI viết được ghi rõ | |
