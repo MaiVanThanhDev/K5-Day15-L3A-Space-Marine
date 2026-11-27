@@ -9,7 +9,7 @@
 | Lượt | Run ID | Đạt / tổng | % | thuong | kho | tu_choi | So với chuẩn "đạt" |
 |---|---|---|---|---|---|---|---|
 | 1 | `run-1@20261127-184523` | 24/30 | 80% | 4/6 | 17/21 | 3/3 | **chưa** — đạt ≥80% và 100% `tu_choi`, nhưng trượt điều kiện "100% câu cần chuyển TA hoặc hỏi lại được chuyển TA hoặc hỏi lại": B21, B25 cần hỏi lại lớp / buổi mà trợ lý chuyển TA |
-| 2 | `run-2@20261127-190717` | 28/30 | 93% | 5/6 | 20/21 | 3/3 | **đạt** — ≥80%, 100% `tu_choi`, 100% câu cần chuyển TA / hỏi lại làm đúng. Điều kiện "0 câu sai ngày / giờ / phòng" phụ thuộc cách đọc B01 (nêu phòng thêm H203, H208 như phòng học — có trong ô D31 nhưng không tách là phòng thêm): nếu người chấm thứ hai tính B01 là sai phòng thì lượt 2 **chưa đạt** |
+| 2 | `run-2@20261127-190717` | 28/30 | 93% | 5/6 | 20/21 | 3/3 | **đạt** — ≥80%, 100% `tu_choi`, 100% câu cần chuyển TA / hỏi lại làm đúng. 0 câu sai ngày / giờ / phòng. B01 trượt vì thiếu / gộp chi tiết (gộp phòng thêm H203, H208 với phòng chính; thiếu giờ 14:00–18:00), không phải "khẳng định sai phòng": H203, H208 có trong chính ô D31 của đúng buổi, không rơi vào trường hợp sai nào của `dung_thong_tin` (giá trị cũ, nguồn phụ, ngoài data, lớp / buổi khác, phòng chưa chốt nói như đã chốt). Chốt theo định nghĩa metric, sau khi người thứ hai chấm (`eval/README.md` mục 3) |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -32,7 +32,7 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 | B25 | "anh chị ơi có thời khóa biểu chưa ạ" | "Hiện tại thông tin về thời khóa biểu chi tiết chưa có trong dữ liệu của mình…" + bản nháp TA | Lịch chính thức có (bảng phân công Khoá 9 (GĐ1)); câu trả lời làm học viên tưởng chưa có lịch. Đúng ra phải chỉ tới bảng chính và hỏi lại lớp / buổi |
 | B26 | "chắc thứ 2 mới bắt đầu học mọi người nhỉ?" | "Bạn vui lòng cho biết mình thuộc lớp L3A hay L3B để mình kiểm tra lịch học chính xác vào ngày thứ Hai 03/05/2027…" | Không bác bỏ thông tin sai: khoá đã bắt đầu từ thứ Năm 15/04 (D6, D7). Code đọc "thứ 2" thành 03/05 nên model đi hỏi lớp |
 | B03 | "Sáng thứ Tư 28/04 lớp L3 học gì, ở đâu?" | "…LEC 11, hình thức học online." · Nguồn D28 | Thiếu giờ 09:00 mà tiêu chí bắt buộc |
-| B01 | "Chiều thứ Năm 29/04 lớp L3A học LEC 13 ở phòng nào?" | "…diễn ra tại các phòng: E403, H210, H203 và H208." · Nguồn D31, E31 | Gộp phòng thêm H203, H208 chung với phòng chính E403, H210, ô D31 tách riêng hai loại |
+| B01 | "Chiều thứ Năm 29/04 lớp L3A học LEC 13 ở phòng nào?" | "…diễn ra tại các phòng: E403, H210, H203 và H208." · Nguồn D31, E31 | Gộp phòng thêm H203, H208 chung với phòng chính E403, H210, ô D31 tách riêng hai loại; thiếu giờ 14:00–18:00 (người chấm thứ hai thấy thêm) |
 
 ## 3. Một lần cải tiến
 
