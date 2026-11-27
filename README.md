@@ -108,8 +108,11 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 
 | Thành phần | Thật / Giả | Ghi chú |
 |---|---|---|
-| Lời gọi AI ở quyết định trung tâm | **Thật** (bắt buộc từ CP3) | Model: ____ |
-|  |  |  |
+| Lời gọi AI ở quyết định trung tâm | **Thật** (bắt buộc từ CP3) | Model: `gemini-3.1-flash-lite` (Gemini API, `codebase/ai.py`), 1 lần gọi / câu hỏi |
+| Dữ liệu lịch / phòng | Giả lập (BTC cấp) | `data/lich-l3-k9.csv`, trích từ data BTC `training-ops` (Khoá 9 giả lập) |
+| Mốc "hiện tại" | Cố định | 21:00 27/04/2027 (mốc bản xuất của bảng chính), đổi bằng `APP_NOW` trong `.env` |
+| Discord | Chưa nối | Chạy bằng dòng lệnh `python run.py` |
+| Gửi tin cho TA | Chỉ bản nháp | `soan_chuyen_ta` không gửi đi đâu, chờ người duyệt |
 
 ## Dùng AI vào việc gì
 

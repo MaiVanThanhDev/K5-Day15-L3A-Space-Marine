@@ -46,23 +46,31 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 - **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent — Mọi câu hỏi đi cùng một đường: code đọc ngày / buổi / lớp / session → tra lịch → model quyết định 1 lần (answer / ask / handoff / refuse) → code kiểm lại. Không chọn agent vì chỉ có 1 công cụ tra cứu với bộ lọc cố định, không cần AI tự chọn bước; thêm vòng lặp chỉ thêm token và thêm chỗ sai.
 - **Luồng** (`codebase/agent.py`):
   ```mermaid
-  flowchart LR
-    Q[Câu hỏi học viên] --> P[code: đọc ngày, buổi, lớp, session]
-    P --> T[tra_lich: bảng chính + nguồn phụ + lịch sử sửa]
-    T --> C[Căn cứ + trang_thai do code tính]
-    C --> M[model: answer / ask / handoff / refuse, JSON]
-    M --> V{code: ô trích có trong kết quả, phòng / giờ khớp ô đã chốt?}
-    V -- có --> A[Trả lời + trích file · sheet · ô do code viết]
-    V -- không --> H[soan_chuyen_ta: bản nháp chờ TA duyệt]
-    M -- handoff --> H
-    M -- ask --> K[Hỏi lại 1 điều thiếu]
-    M -- refuse --> R[Từ chối + chỉ đường]
+  flowchart TD
+    Q["Câu hỏi học viên"] --> P["Code: đọc ngày, buổi, lớp, session<br/>mốc hiện tại 21:00 27/04/2027"]
+    P --> T["Công cụ tra_lich<br/>bảng chính + nguồn phụ + lịch sử sửa"]
+    T --> C["Căn cứ, trang_thai do code tính<br/>da_chot · chua_chot · online · khong_ap_dung"]
+    C --> M["Model: chọn 1 trong 4 quyết định, trả JSON"]
+
+    M -->|"answer"| D1{"Code: câu hỏi về hạn nộp?"}
+    D1 -->|"có"| H
+    D1 -->|"không"| D2{"Code: không nói lớp mà<br/>L3A và L3B cùng có session này?"}
+    D2 -->|"có"| K
+    D2 -->|"không"| D3{"Code: ô trích có trong kết quả tra,<br/>phòng và giờ khớp ô đã chốt?"}
+    D3 -->|"có"| A["Trả lời + trích nguồn file · sheet · ô<br/>chuỗi nguồn do code viết"]
+    D3 -->|"không"| H
+
+    M -->|"ask"| K["Hỏi lại 1 điều còn thiếu"]
+    M -->|"handoff"| H["Công cụ soan_chuyen_ta<br/>bản nháp chờ TA duyệt, không tự gửi<br/>code bỏ câu nêu phòng mà không ghi chưa xác nhận"]
+    M -->|"refuse"| R["Từ chối + chỉ đường: lịch chính thức / TA<br/>code thay câu mặc định nếu có mã phòng hoặc email"]
+    M -->|"JSON hỏng"| H
   ```
 - **AI dựa vào đâu** — mỗi công cụ (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
   |---|---|---|---|
-  | `tra_lich` | `ngay` dd/mm/yyyy · `buoi` Sáng/Chiều · `lop` L3A/L3B · `session` vd LAB 13 (bỏ trống = không lọc) | ≤12 buổi của bảng chính: ô `o`, ngày, giờ, lớp, session, hình thức, `trang_thai` do code tính (`da_chot` · `chua_chot` · `online` · `khong_ap_dung`), phòng (chỉ khi đã chốt), nguồn phụ đang lệch, lịch sử sửa | Không (chỉ đọc `data/lich-l3-k9.csv`, `data/lich-su-sua-l3-k9.csv`) |
+  | `tong_quan_khoa` | không có | ngày khai giảng, buổi đầu tiên mỗi lớp, ngày đầu – cuối, khung giờ sáng / chiều, các buổi giờ riêng, nghỉ lễ, ví dụ học thứ 7 (mỗi mục kèm ô nguồn), danh sách thứ dữ liệu **không** có (hạn nộp, link nộp, chia phòng, điểm…) | Không (chỉ đọc) |
+  | `tra_lich` | `ngay` dd/mm/yyyy · `buoi` Sáng/Chiều · `lop` L3A/L3B · `session` vd LAB 13 · `phong` mã phòng, khớp cả phòng cũ trong lịch sử sửa (bỏ trống = không lọc) | ≤12 buổi của bảng chính: ô `o`, ngày, giờ, lớp, session, hình thức, `trang_thai` do code tính (`da_chot` · `chua_chot` · `online` · `khong_ap_dung`), phòng (chỉ khi đã chốt), nguồn phụ đang lệch, lịch sử sửa | Không (chỉ đọc `data/lich-l3-k9.csv`, `data/lich-su-sua-l3-k9.csv`) |
   | `soan_chuyen_ta` | câu hỏi, lý do chuyển | bản nháp tin nhắn tag TA, `trang_thai: ban_nhap_cho_duyet` | Có nếu gửi → **chỉ tạo bản nháp**, người duyệt mới gửi |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [x] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm — trả lời tự động chỉ khi có nguồn chính thức còn hiệu lực, không mâu thuẫn; sai hạn thì học viên nộp trễ, mất điểm; sai phòng thì cả nhóm đi nhầm, mất giờ học — sửa đắt, nên mọi trường hợp không chắc đều chuyển TA.
@@ -82,9 +90,9 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
 
 - Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: lịch là data BTC giả lập Khoá 9 (`synthetic`). "Hiện tại" của trợ lý cố định ở mốc bản xuất 21:00 27/04/2027 (đổi bằng `APP_NOW` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py`. Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
 - **Chặn trong code** (`codebase/agent.py`, không phụ thuộc model):
-  - `answer` phải trích ô bảng chính có trong kết quả tra của câu đó.
+  - `answer` phải trích ô bảng chính có trong kết quả tra hoặc trong `tong_quan_khoa` của câu đó.
   - Mọi mã phòng và mọi giờ trong câu trả lời phải nằm trong đúng ô đã trích, và ô đó phải đã chốt. Sai thì chuyển TA.
-  - Hỏi hạn nộp (dữ liệu không có) mà model vẫn trả lời → chuyển TA.
+  - Hỏi hạn nộp / link nộp / có phải nộp bài không (dữ liệu không có) mà model vẫn trả lời → chuyển TA.
   - Không nói lớp mà L3A và L3B cùng có session được hỏi → hỏi lại lớp.
   - Từ chối không được nhắc mã phòng hay email. Chuyển TA mà nêu phòng thì phải ghi "dự kiến / chưa xác nhận".
   - Model trả sai định dạng → chuyển TA.

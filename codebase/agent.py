@@ -21,12 +21,13 @@ import os
 import re
 
 from ai import call_model
-from tools import AS_OF, cite, norm, rooms_of, soan_chuyen_ta, tra_lich
+from tools import AS_OF, cell_obj, cite, norm, rooms_of, soan_chuyen_ta, tong_quan_khoa, tra_lich
 from tracing import note
 
 WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
 DECISIONS = ("answer", "ask", "handoff", "refuse")
-DEADLINE = re.compile(r"\b(han nop|han chot|han cuoi|deadline|due)\b")
+# hỏi hạn nộp / việc nộp bài: dữ liệu lịch không có → model trả lời thì code chuyển TA
+DEADLINE = re.compile(r"\b(han nop|han chot|han cuoi|deadline|due|link nop|nop bai|phai nop|nop (ko|k|khong|chua))\b")
 TIME = re.compile(r"\b\d{1,2}:\d{2}\b")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 UNSURE = ("du kien", "chua xac nhan", "cho xac nhan", "chua chot", "chua chinh thuc")
@@ -36,7 +37,9 @@ HANDOFF_DEFAULT = "Mình chưa có thông tin chính thức chắc chắn cho c�
 
 SYSTEM = """Bạn là trợ lý tra lịch của khoá AI20K cho học viên lớp L3 (L3A, L3B).
 Phạm vi DUY NHẤT: lịch học, giờ học, phòng học, hình thức học (online / nghỉ lễ / không có lớp) — dựa trên CĂN CỨ được cung cấp.
-CĂN CỨ là kết quả tra bảng phân công chính (bảng chính). Mỗi buổi có "o" (ô nguồn) và "trang_thai" do hệ thống tính sẵn.
+CĂN CỨ gồm "tong_quan_khoa" (khai giảng, khung giờ, nghỉ lễ, buổi giờ riêng… của bảng phân công chính) và
+"ket_qua_tra_lich" (các buổi khớp câu hỏi). Mỗi mục có "o" (ô nguồn); mỗi buổi có "trang_thai" do hệ thống tính sẵn.
+"tong_quan_khoa.khong_co_trong_du_lieu" liệt kê thứ dữ liệu KHÔNG có — hỏi những thứ đó thì handoff, không đoán.
 
 Luật:
 1. Chỉ dùng thông tin trong CĂN CỨ. Không đoán, không suy ra ngày, giờ, phòng không có trong căn cứ.
@@ -45,6 +48,8 @@ Luật:
    "online" / "khong_ap_dung" → nêu đúng hình thức (online, nghỉ lễ, không có lớp).
    Có "lich_su_sua" → giá trị "truoc" là CŨ, chỉ dùng giá trị hiện tại trong bảng chính.
    Giờ: dùng đúng trường "gio" của buổi (có buổi giờ riêng khác khung buổi).
+   Phòng: liệt kê ĐỦ mọi phòng trong "phong" (và "phong_them" nếu có) của buổi; không viết "một trong các phòng"
+   hay "hoặc", vì đó là các phòng của cùng buổi học, không phải phòng để chọn.
 3. Chọn "decision":
    - "answer": căn cứ trả lời được câu hỏi. Nêu cụ thể thứ, ngày, giờ, phòng (nếu đã chốt) hoặc hình thức.
    - "ask": thiếu thông tin để chọn đúng buổi — vd không nói lớp L3A hay L3B trong khi hai lớp có buổi khác nhau,
@@ -106,7 +111,8 @@ def parse_question(text, base):
     lop = ("L3" + m.group(1).upper()) if m else ""
     m = re.search(r"\b(lab|lec)\s*(\d{1,2})\b", t)
     session = ("%s %d" % (m.group(1).upper(), int(m.group(2)))) if m else ("HACKATHON" if "hackathon" in t else "")
-    return {"ngay": day.strftime("%d/%m/%Y") if day else "", "buoi": buoi, "lop": lop, "session": session}
+    phong = ", ".join(dict.fromkeys(rooms_of(text.upper())))
+    return {"ngay": day.strftime("%d/%m/%Y") if day else "", "buoi": buoi, "lop": lop, "session": session, "phong": phong}
 
 
 def parse_json(text):
@@ -164,10 +170,17 @@ def check_answer(message, sources, by_cell):
 def answer(text: str) -> dict:
     base_dt = now()
     filters = parse_question(text, base_dt.date())
+    overview = tong_quan_khoa()
     found = tra_lich(**filters)
+    if not found and filters["phong"] and any(filters[k] for k in ("ngay", "lop", "session")):
+        # phòng nhắc trong câu không khớp buổi được hỏi → tra lại theo ngày / lớp / session để model thấy buổi thật
+        found = tra_lich(**dict(filters, phong=""))
     note("bộ lọc=%s · %d buổi" % (filters, len(found)))
 
     by_cell = {}
+    for o in re.findall(r'"o": "([A-Z]+\d+)"', json.dumps(overview)):
+        if cell_obj(o):
+            by_cell[o] = cell_obj(o)
     for s in found:
         for o in s["o"]:
             by_cell[o] = s
@@ -175,6 +188,7 @@ def answer(text: str) -> dict:
     context = {
         "hien_tai": "%s, %s" % (vn(base_dt.date()), base_dt.strftime("%H:%M")),
         "bo_loc_doc_tu_cau_hoi": filters,
+        "tong_quan_khoa": overview,
         "ket_qua_tra_lich": found,
     }
     user = ("CĂN CỨ (JSON):\n%s\n\n<cau_hoi>\n%s\n</cau_hoi>"
@@ -194,7 +208,7 @@ def answer(text: str) -> dict:
     if decision == "answer":
         if DEADLINE.search(norm(text)):
             note("chặn: hỏi hạn nộp — dữ liệu không có hạn nộp → chuyển TA")
-            return {"output": handoff_output(text, "Dữ liệu lịch chưa có thông tin chính thức về hạn nộp bài.",
+            return {"output": handoff_output(text, "Dữ liệu lịch chưa có thông tin chính thức về hạn nộp / việc nộp bài.",
                                              "hỏi hạn nộp, dữ liệu lịch không có hạn nộp")}
         if ambiguous_class(filters, found):
             note("chặn: không rõ lớp, hai lớp có cùng session → hỏi lại")
