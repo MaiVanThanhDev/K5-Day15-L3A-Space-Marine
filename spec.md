@@ -65,6 +65,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
     M -->|"refuse"| R["Từ chối + chỉ đường: lịch chính thức / TA<br/>code thay câu mặc định nếu có mã phòng hoặc email"]
     M -->|"JSON hỏng"| H
   ```
+  
 - **AI dựa vào đâu** — mỗi công cụ (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
@@ -131,7 +132,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 - Kết quả: lượt 1 24/30 (80%, chưa đạt chuẩn) · lượt 2 28/30 (93%, đạt chuẩn — trừ khi B01 bị tính là sai phòng) — run ID: `run-1@20261127-184523` / `run-2@20261127-190717` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
-- Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên) *(chờ simulate)*
+- Persona + giá: `cost/personas.yaml` (3 persona; giá `gemini-3.1-flash-lite` 0.25 / 1.50 và `gemini-4-hydrogen` 1.50 / 7.50 USD / 1M token theo bảng chung BTC) · quy mô 300 · 700 · 1.000 học viên · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên) *(chờ simulate với model thật)*
 - Chi phí / task thành công: __ (model __) · __ (model __)
 - Chi phí / tháng ở quy mô thật: thấp __ · cơ sở __ · cao __ → chi tiết `cost/cost-estimate.md`
 - So với impact / người / tháng (§2): __
@@ -143,7 +144,7 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 
 ## §10. Phân công & changelog
 - Phân công có tên: Mai Văn Thanh (đội trưởng — bằng chứng: khảo sát + đếm tin Discord, `evidence/`) · Lê Quang Trường (bộ câu thử + metric + chuẩn đạt, `eval/`, §7) · Lục Anh Tuấn (bản chạy thử: công cụ tra thông báo / lịch, nối model, `codebase/`) · Nguyễn Lê Hải Nam (mô phỏng chi phí + slide, `cost/`, `demo-slides.pdf`).
-- Dùng AI vào việc gì: Claude Code soạn bản nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; nhóm đọc lại và sửa. Chi tiết `docs/ai-usage.md`.
+- Dùng AI vào việc gì: Claude Code soạn bản nháp `spec.md` (§0, §3–§6, §9) từ `canvas.md`; nhóm đọc lại và sửa. Chi tiết `docs/ai-usage.md`.hạn nộp / phòng học có nguồn
 - Nhật ký thay đổi — **mọi thay đổi sau CP2 19:30 Thứ Sáu 27/11 phải có dòng ở đây**:
 
 **CP2 → CP4** (vd thu hẹp lát cắt, hỏi thêm người dùng, lần cải tiến trước lượt 2)
