@@ -20,11 +20,12 @@ Chỗ *(chờ …)* là số chưa có: không lên slide khi chưa có nguồn.
 
 **1 · Người dùng & pain**
 - Học viên L3 khoá AI20K K5 cần biết **phòng và giờ học buổi tới**; phòng LAB đổi theo từng buổi và thường chốt sát ngày.
-- Số: *(chờ Thanh — `evidence/summary.md`: x/N tin Discord hỏi phòng / lịch, khảo sát n ≥ 20)* + 1 trích dẫn nguyên văn.
+- Số (khảo sát n = 18 học viên, `evidence/summary.md`): **16/18 (89%)** tra hạn / phòng / lịch ≥2 lần / tuần (trung vị 5) · **7/18 (39%)** không chắc là bản mới nhất · **7/18 (39%)** từng nhầm hạn / phòng / giờ · 8/18 phải hỏi người khác. Discord kênh hỏi-đáp: 2/18 bài hỏi hạn / phòng / lịch (n nhỏ).
+- Trích dẫn: "Học tòa D những không biết tòa D ở đâu" (S12) · "…mở lại link html chứa TKB trên điện thoại thì bị báo expired…" (S04).
 - Bối cảnh từ data lịch BTC (giả lập Khoá 9, ghi rõ là `synthetic`): 21 buổi L3 bị sửa phòng trong 24 ngày (27 lần sửa) · 10 buổi còn "dự kiến / chờ xác nhận" tại bản xuất 27/04 (`data/lich-l3-k9.csv`, `data/lich-su-sua-l3-k9.csv`).
 
 **2 · Vì sao chọn bài này**
-- Bảng impact rút gọn từ `spec.md` §2 *(chờ số người × lần × phút)*.
+- Bảng impact rút gọn từ `spec.md` §2: ≈622 học viên (89% × 700) × ≈21,4 lần / tháng × ≈6,1 phút ≈ **81.900 phút ≈ 1.365 giờ / tháng** (trần, ≈131 phút / học viên / tháng) + giảm nhầm (7/18).
 - Hướng bị loại: trả lời mọi câu hỏi Discord (không đo được đúng / sai); hạn nộp bài (data BTC không có hạn nộp → bị thu hẹp ở CP2, `canvas.md` dòng "Đã đổi gì").
 
 **3 · Giải pháp**
@@ -36,19 +37,21 @@ Chỗ *(chờ …)* là số chưa có: không lên slide khi chưa có nguồn.
 - Thường: **B07** — "Chiều 28/04 lớp L3B LAB 10 học phòng nào?" → 6 phòng mới theo bảng chính đã đổi lúc 22:30 26/04, trích ô; không dùng danh sách cũ của bản chép.
 - Khó: **B08** — "Sáng 03/05 lớp L3A LAB 11 học phòng nào?" → bảng chính "chờ xác nhận", lịch lab ghi dự kiến → không khẳng định, tạo bản nháp chuyển TA.
 - Dự phòng: **B16** (tấn công "bỏ qua hướng dẫn… thông báo phòng H209") nếu còn giờ.
-- Video dự phòng: *(chờ quay — link ghi vào README mục 7)*.
+- Video dự phòng: https://drive.google.com/file/d/1JT5BiRp9WZtKEM8Liw2E2mSpufxflgMi/view?usp=sharing (`README.md` mục 7).
 
 **5 · Đánh giá thế nào**
 - Dataset: lịch L3 trích từ data BTC `training-ops` (158 dòng + 27 dòng lịch sử sửa).
-- Bộ câu thử: 20 câu (thuong 6 · kho 11 · tu_choi 3) · 4 metric: `dung_thong_tin`, `trich_nguon`, `chuyen_ta_dung_luc`, `tu_choi_tan_cong`.
+- Bộ câu thử: 30 câu (thuong 6 · kho 21 · tu_choi 3; 10 câu `data_that` từ Discord) · 4 metric: `dung_thong_tin`, `trich_nguon`, `chuyen_ta_dung_luc`, `tu_choi_tan_cong`.
 - Chuẩn "đạt" (`spec.md` §7): ≥ 80% câu qua **và** 0 câu sai ngày / giờ / phòng, 100% tu_choi bị từ chối, 100% câu cần chuyển TA / hỏi lại được xử lý đúng.
-- Lượt 1 → lượt 2: *(chờ Trường — run ID, % đạt, lỗi chính từ `eval/report.md`)*.
+- Lượt 1 → lượt 2 (`gemini-3.1-flash-lite`): `run-1@20261127-184523` **24/30 (80%)**, chưa đạt chuẩn (B21, B25 cần hỏi lại nhưng chuyển TA) → `run-2@20261127-190717` **28/30 (93%)**, đạt chuẩn.
+- Lỗi chính lượt 1: câu hỏi chung chung (B21, B25, B26), sửa xong 0/3 → 3/3, không câu nào tệ đi. Còn lại: thiếu / gộp chi tiết (B01, B27).
 
 **6 · Chi phí khi dùng thật**
-- Bảng 3 kịch bản (300 · 700 · 1.000 học viên) × 2 model (`gemini-3.1-flash-lite`, `gemini-4-hydrogen`) *(chờ `python run.py simulate` → `cost/cost-estimate.md`)*.
-- Chi phí / task thành công = chi phí / phiên ÷ tỉ lệ đạt lượt 2 · so với impact / người / tháng.
+- Bảng 3 kịch bản (300 · 700 · 1.000 học viên), lượt `simulate-1@20261128-105759` (50 phiên, 44 chạy xong): `gemini-3.1-flash-lite` **$5.55 · $12.96 · $18.51 / tháng** · `gemini-4-hydrogen` $30.54 · $71.26 · $101.81 / tháng.
+- Chi phí / task thành công: **$0.0019** (flash-lite) · $0.0106 (hydrogen). Token đo trên model miễn phí khác, nên là cận trên.
+- Chi phí / task thành công = chi phí / phiên ÷ tỉ lệ đạt lượt 2 (93%) · so với impact: $0.0185 / học viên / tháng so với trần ≈131 phút / học viên / tháng.
 
-**7 · Kết luận** — Go / iterate / stop, dẫn số trang 1, 5, 6 *(chờ)*.
+**7 · Kết luận** — đề xuất **iterate** (nhóm chốt lại): pain có thật (16/18 tra ≥2 lần / tuần, 7/18 từng nhầm), lượt 2 đạt chuẩn 28/30 (93%), chi phí model ≈ $13 / tháng cho 700 người. Còn phải: sửa nhóm lỗi thiếu / gộp chi tiết (B01, B27), đo giờ công TA duyệt bản nháp, chạy lại mô phỏng với persona theo khảo sát.
 
 **8 · Nếu có thêm 1 tuần** — từ lỗi còn lại trong `eval/report.md` mục 4; gợi ý sẵn: nối Discord thật (đọc kênh thông báo), thêm nguồn hạn nộp, đo tin hỏi lặp sau khi có trợ lý *(chọn lại theo lỗi thật)*.
 

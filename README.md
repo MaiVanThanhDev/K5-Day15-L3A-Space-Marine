@@ -130,3 +130,14 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 | 6 | Mô phỏng chi phí khi dùng thật | `cost/` |
 | 7 | Slide + demo + video dự phòng | `demo-slides.pdf` ở thư mục gốc · link video: https://drive.google.com/file/d/1JT5BiRp9WZtKEM8Liw2E2mSpufxflgMi/view?usp=sharing |
 | + | *Bonus:* người dùng thử | `validation/log.md` |
+
+## Phần chưa xong (tự khai ở CP4, 14:30 Thứ Bảy 28/11)
+
+- **Mô phỏng chi phí chưa đủ 50 phiên chạy xong:** `simulate-1` sinh 50 phiên, 44 phiên chạy xong; 6 phiên (S045–S050) lỗi `HTTP 429` vì hết hạn mức lượt gọi / ngày của gói miễn phí OpenRouter. Trung bình tính trên 44 phiên (`cost/cost-estimate.md` mục 2).
+- **Mô phỏng đo token trên model khác model eval:** token đo bằng `nvidia/nemotron-3-ultra-550b-a55b:free` (tài khoản OpenRouter chưa có credit), còn eval chạy bằng `gemini-3.1-flash-lite`. Token ra bị đẩy cao vì có token suy luận, nên chi phí model nhỏ là cận trên.
+- **Persona chưa lấy từ khảo sát:** `cost/personas.yaml` vẫn dùng tần suất đếm từ data lịch BTC; share, số lượt / phiên và kiểu `hoi_it` là *(tự ước tính)*. Khảo sát (`spec.md` §2) cho tần suất cao hơn (hỏi vừa ≈19, hỏi nhiều ≈34 lần / tháng), nên chi phí / tháng có thể đang thấp hơn thực tế. Chưa chạy lại simulate với persona mới.
+- **Chưa đo chi phí giờ công TA** duyệt bản nháp chuyển TA (`cost/cost-estimate.md` mục 3).
+- **Metric `trich_nguon` chưa có code chấm**, đang chấm tay (`eval/report.md` mục 4).
+- **Lỗi còn lại sau lượt 2:** B01 (gộp phòng thêm với phòng chính, thiếu giờ), B27 (thiếu "LEC 11"). Mỗi cấu hình mới chạy 1 lần, chưa đo độ dao động.
+- **Bonus người dùng thử** (`validation/log.md`): chưa làm.
+- **Reflection** (`reflection/`): mới có 1/4 người, hạn 23:59 Thứ Bảy 28/11.
