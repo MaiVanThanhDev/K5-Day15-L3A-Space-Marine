@@ -1,5 +1,7 @@
 # Câu hỏi phỏng vấn TA / lab coach (10–15 phút)
 
+> **Trạng thái: không phỏng vấn.** Nhóm quyết định không làm nguồn này vì khảo sát đã đủ ngưỡng làm nguồn chính (`evidence/summary.md` mục 1 và mục 5). Bộ câu dưới đây giữ lại làm tham khảo; các ô `__` để trống vì không có buổi phỏng vấn nào. Phía TA vì vậy chưa có số (ghi ở `spec.md` §2 và "Điều vẫn chưa biết" trong `evidence/summary.md`).
+
 > Mang theo khi đi hỏi. Chép `TEMPLATE.md` thành `P1.md`, `P2.md`… và dán đúng các câu này vào mục "Câu đã hỏi".
 > Hỏi về **lần đã xảy ra**, không giới thiệu ý tưởng trợ lý, không hỏi "anh/chị có muốn… không".
 

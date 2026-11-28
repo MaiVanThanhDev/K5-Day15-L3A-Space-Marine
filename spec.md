@@ -186,3 +186,4 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 | Thời điểm | Đổi gì | Vì sao |
 | --------- | ------ | ------ |
 | 14:35 Thứ Bảy 28/11 | `evidence/survey/questions.md`: điền kênh gửi, giờ mở / chốt form (17:00–19:00 27/11), link form; ghi tin nhắn mời thật không có giờ hạn. `AGENTS.md`: điền 3 dòng "Quy ước của nhóm" | Điền chỗ còn trống trong khung. Chỉ thêm thông tin về cách gửi khảo sát; không đổi phiếu, số liệu bằng chứng, câu thử hay chuẩn "đạt" |
+| 14:45 Thứ Bảy 28/11 | `evidence/interviews/questions-TA.md`: thêm dòng trạng thái "không phỏng vấn", trỏ về `evidence/summary.md` mục 5 | File còn ô `__` trông như làm dở; nhóm đã quyết định không phỏng vấn TA từ trước. Không đổi số liệu bằng chứng |
