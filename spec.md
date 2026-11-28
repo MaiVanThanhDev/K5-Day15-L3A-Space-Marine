@@ -107,7 +107,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): `data/trai
   | Việc có tác động ra ngoài chỉ là bản nháp  | `soan_chuyen_ta` trả bản nháp, không gửi                                                                      |
   | Luật cứng bằng code, không giao cho prompt | Chọn bản mới nhất, phát hiện mâu thuẫn, kiểm `trang_thai` phòng làm trong code                                |
 
-- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: lịch là data BTC giả lập Khoá 9 (`synthetic`). "Hiện tại" của trợ lý cố định ở mốc bản xuất 21:00 27/04/2027 (đổi bằng `APP_NOW` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py`. Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
+- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật: lịch là data BTC giả lập Khoá 9 (`synthetic`). "Hiện tại" của trợ lý cố định ở mốc bản xuất 21:00 27/04/2027 (đổi bằng `APP_NOW` trong `.env`). Chưa nối Discord thật: chạy bằng dòng lệnh `python run.py` hoặc trang chat web trên máy `python codebase/web.py` (cùng `answer()`). Bản nháp chuyển TA không gửi đi đâu. Lời gọi model là thật khi `.env` có `MODEL_PROVIDER` (ghi tên model ở README).
 - **Chặn trong code** (`codebase/agent.py`, không phụ thuộc model):
   - `answer` phải trích ô bảng chính có trong kết quả tra hoặc trong `tong_quan_khoa` của câu đó.
   - Mọi mã phòng và mọi giờ trong câu trả lời phải nằm trong đúng ô đã trích, và ô đó phải đã chốt. Sai thì chuyển TA.
@@ -153,14 +153,14 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 
 ## §8. Chi phí khi dùng thật _(guide 4.2)_
 
-- Persona + giá: `cost/personas.yaml` (3 persona; giá `gemini-3.1-flash-lite` 0.25 / 1.50 và `gemini-4-hydrogen` 1.50 / 7.50 USD / 1M token theo bảng chung BTC) · quy mô 300 · 700 · 1.000 học viên · lượt mô phỏng: `cost/simulate-__.csv` (\__ phiên) _(chờ simulate với model thật)\_
-- Chi phí / task thành công: ** (model **) · ** (model **)
-- Chi phí / tháng ở quy mô thật: thấp ** · cơ sở ** · cao \_\_ → chi tiết `cost/cost-estimate.md`
-- So với impact / người / tháng (§2): \_\_
+- Persona + giá: `cost/personas.yaml` (3 persona theo khảo sát câu 3: hỏi ít 11% · 2 phiên / tháng, hỏi vừa 44,5% · 19, hỏi nhiều 44,5% · 34 — như §2; giá `gemini-3.1-flash-lite` 0.25 / 1.50 và `gemini-4-hydrogen` 1.50 / 7.50 USD / 1M token theo bảng chung BTC) · quy mô 300 · 700 · 1.000 học viên · lượt mô phỏng: `cost/simulate-1.csv` (50 phiên, 0 lỗi, seed 42, run ID `simulate-1@20261127-233703`), tỉ lệ đạt lấy từ lượt 2 (28/30)
+- Chi phí / task thành công: **$0.0010** (model `gemini-3.1-flash-lite`) · $0.0061 (model `gemini-4-hydrogen`)
+- Chi phí / tháng ở quy mô thật (`gemini-3.1-flash-lite`): thấp $6,94 · **cơ sở $16,20** · cao $23,15 (model lớn: $40,48 · $94,46 · $134,94) → chi tiết `cost/cost-estimate.md`
+- So với impact / người / tháng (§2): $0.0231 / học viên / tháng so với ≈131 phút tra cứu / học viên / tháng (trần) → tiền model không đáng kể; chi phí thật là giờ TA duyệt bản nháp chuyển TA (11/30 câu thử lượt 2 kết thúc bằng chuyển TA — bộ câu thử lệch về ca khó, tỉ lệ thật chưa đo) → `cost/cost-estimate.md` mục 4.
 
 ## §9. Rủi ro & an toàn
 
-- Dữ liệu: chỉ dùng thông báo chung của khoá (hạn, phòng, lịch), viết lại / trích ngắn; không thu tên, mã học viên, điểm. Câu hỏi đưa vào model không kèm thông tin định danh; không đưa dữ liệu cá nhân vào model gói miễn phí.
+- Dữ liệu: chỉ dùng lịch phân công chung của lớp L3 (ngày, giờ, phòng, session — data BTC giả lập Khoá 9, đã bỏ tên người / email khi trích, `data/DATA_CARD.md`); không thu tên, mã học viên, điểm. Câu hỏi đưa vào model không kèm thông tin định danh; không đưa dữ liệu cá nhân vào model gói miễn phí.
 - AI **không được** làm, kể cả khi người dùng yêu cầu: tự gửi tin / tag TA, đổi hay "công bố" hạn / phòng, trả lời điểm / điểm danh / gia hạn, đưa hạn / phòng không có trong nguồn.
 - Ai có thể bị hại nếu AI sai: học viên (nộp trễ, mất điểm, đi nhầm phòng) và TA (phải xử lý hậu quả). Chặn bằng: kiểm luật bằng code trước khi trả lời (§4), luôn kèm trích `file · sheet · ô` để học viên tự kiểm, không chắc thì chuyển TA, câu tấn công trong bộ câu thử (§5).
 
@@ -178,6 +178,8 @@ Dữ liệu cho mọi kịch bản: `data/lich-l3-k9.csv` (trích từ data BTC 
 | 19:13 Thứ Sáu 27/11 | **Sửa chấm lượt 1**: B27 từ đạt → trượt (cột `pass` của `eval/run-1.csv`), tổng lượt 1 từ 25/30 (83%) xuống **24/30 (80%)**; cập nhật `eval/report.md`, `eval/README.md`, §7 (commit `fea863d`) | Khi chấm lượt 2 thấy output B27 ở cả hai lượt đều không nhắc "LEC 11", mà `pass_criterion` của B27 bắt buộc có — lần chấm đầu bỏ sót. Chỉ sửa cột `pass`, không sửa output, `expected` hay tiêu chí (`eval/report.md` mục 1) |
 | 23:13 Thứ Sáu 27/11 | **Thu hẹp lát cắt** §4: từ "hạn nộp + phòng học" sang "phòng / giờ học trả lời có nguồn; hạn nộp → chuyển TA". Sửa theo: §2 tên hướng, §3, §6 (ví dụ suôn sẻ đổi sang output thật B07; lớp 3 và "người dùng sửa" không còn trả lời hạn nộp); thêm §4 "Không làm" (commit `29f922e`) | Data lịch `data/lich-l3-k9.csv` không có hạn nộp — code đã chặn câu hạn nộp và chuyển TA từ lần nối model (regex `DEADLINE`, B10, B22, B23, B24), spec chưa ghi theo. `evidence/summary.md` mục 5 cũng kết luận lát cắt phòng / lịch không phủ hạn nộp (nhầm hạn nộp 6/18, nhưng data không có) |
 | Đêm Thứ Sáu 27/11 | **Chốt B01 + kết luận lượt 2**: bỏ cụm "trừ khi B01…" ở §7, `eval/report.md` mục 1, `eval/README.md`; lượt 2 ghi **đạt chuẩn**. Không đổi cột `pass` (B01 vẫn 0), không đổi chuẩn "đạt" hay metric | Người thứ hai chấm độc lập 5 output lượt 2, khớp 5/5. B01: H203, H208 có trong ô D31 của đúng buổi → không thuộc trường hợp sai nào của `dung_thong_tin` (`eval/metric_spec.yaml`); trượt vì thiếu / gộp chi tiết |
+| 23:37 Thứ Sáu 27/11 | **Persona chi phí theo khảo sát** (`cost/personas.yaml`): từ 3 persona theo data lịch (`hoi_it` 50% · 4, `hoi_khi_doi_phong` 35% · 13, `hoi_truoc_moi_lab` 15% · 17 phiên / tháng, share tự ước tính) sang `hoi_it` 11% · 2, `hoi_vua` 44,5% · 19, `hoi_nhieu` 44,5% · 34. Chạy `python run.py simulate --rate-from eval/run-2.csv` → `cost/simulate-1.csv`; điền §8, `cost/cost-estimate.md` | Guide 4.2: số persona lấy từ khảo sát khi có. Khảo sát câu 3 (n = 18) cho tần suất thật, share cũ là tự ước tính (§2 "số lần / tháng của từng kiểu người dùng") |
+| 23:40 Thứ Sáu 27/11 | **Ghi giao diện web** vào README (lệnh `python codebase/web.py`, bảng Thật / Giả) và §4 "phần còn giả"; §9 dòng dữ liệu chỉ còn lịch phân công (bỏ "thông báo hạn") | `codebase/web.py` (PR #8) chạy cùng `answer()`, chưa có trong tài liệu; §9 cũ chưa khớp lát cắt đã thu hẹp |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

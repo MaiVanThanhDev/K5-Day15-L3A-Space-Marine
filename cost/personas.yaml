@@ -4,8 +4,10 @@
 # Chạy: python run.py simulate --try   (10 phiên, kiểm khung — làm trước CP3)
 #       python run.py simulate         (đủ số phiên dưới đây — bản nộp CP4)
 # Bài: trợ lý trả lời phòng / giờ học buổi tới cho học viên L3 (spec.md §4), nguồn data/lich-l3-k9.csv.
-# Tần suất lấy từ data lịch BTC (giả lập Khoá 9, 15/04–08/05/2027 = 24 ngày, quy ra 30 ngày);
-# tỉ lệ (share) và số lượt / phiên là (tự ước tính) — thay bằng số khảo sát (evidence/survey) khi có.
+# Tần suất và tỉ lệ lấy từ khảo sát 27/11/2026 (evidence/survey/results.csv, n = 18 học viên, câu 3 "1 tuần qua tra mấy lần"),
+# chia 3 nhóm như spec.md §2; quy ra tháng × 30/7. Bản trước (CP3) dùng tần suất đếm từ data lịch BTC
+# (13 buổi sửa phòng / 17 buổi LAB mỗi 30 ngày) + share tự ước tính — thay vì khảo sát có số thật hơn.
+# Lưu ý: câu 3 đếm cả lần tra hạn nộp; trợ lý vẫn tốn 1 lần gọi model để chuyển TA nên vẫn tính chi phí.
 
 sessions: 50        # số phiên mô phỏng — bản nộp ≥50
 seed: 42            # giữ cố định để chạy lại ra cùng chuỗi phiên
@@ -17,21 +19,21 @@ users:              # học viên dùng trợ lý trên Discord của khoá
   source: "base 700: lớp L3 hơn 700 học viên · high 1000: cả khoá hơn 1.000 — repo đề 02-guide.md mục 4.2. low 300: ~40% học viên L3 hỏi qua trợ lý (tự ước tính)"
 
 personas:           # share cộng lại = 1
-  - name: hoi_it              # chỉ hỏi khi không chắc, khoảng 1 lần / tuần
-    share: 0.5
-    uses_per_month: 4
+  - name: hoi_it              # 0–2 lần / tuần
+    share: 0.11
+    uses_per_month: 2
     turns_per_session: 1
-    source: "(tự ước tính) — thay bằng khảo sát: số lần tra phòng / lịch mỗi tuần"
-  - name: hoi_khi_doi_phong   # hỏi lại mỗi khi phòng buổi của lớp mình bị sửa
-    share: 0.35
-    uses_per_month: 13
+    source: "share: khảo sát câu 3 — 2/18 học viên (cả 2 trả lời 0 lần tuần qua). uses 2 / tháng (tự ước tính — 0 lần trong 1 tuần không có nghĩa là không bao giờ tra)"
+  - name: hoi_vua             # 3–6 lần / tuần
+    share: 0.445
+    uses_per_month: 19
     turns_per_session: 1
-    source: "uses: data/lich-su-sua-l3-k9.csv — 10 (L3A) / 11 (L3B) buổi bị sửa phòng trong 24 ngày → ≈13 / 30 ngày. share (tự ước tính)"
-  - name: hoi_truoc_moi_lab   # hỏi phòng + giờ trước mọi buổi LAB (phòng LAB đổi theo buổi)
-    share: 0.15
-    uses_per_month: 17
-    turns_per_session: 2
-    source: "uses: data/lich-l3-k9.csv bảng chính — 14 buổi LAB / lớp trong 24 ngày → ≈17 / 30 ngày. share, turns (tự ước tính)"
+    source: "khảo sát câu 3 — 8/18 học viên, trung vị 4,5 lần / tuần × 30/7 ≈ 19. turns 1 (tự ước tính)"
+  - name: hoi_nhieu           # ≥7 lần / tuần
+    share: 0.445
+    uses_per_month: 34
+    turns_per_session: 1
+    source: "khảo sát câu 3 — 8/18 học viên (gồm 1 phiếu 'Rất nhiều lần.'), trung vị 8 lần / tuần × 30/7 ≈ 34. turns 1 (tự ước tính)"
 # Mỗi lượt hỏi lấy ngẫu nhiên một đầu vào trong eval/benchmark.csv (type thuong và kho).
 # Persona hỏi kiểu riêng: thêm vào persona đó
 #     types: [thuong, kho, tu_choi]
