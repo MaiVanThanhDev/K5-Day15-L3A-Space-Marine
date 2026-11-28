@@ -63,6 +63,9 @@ def call_model(system: str, user: str) -> dict:
         raise RuntimeError("Thiếu API_KEY trong .env.")
     if MODEL_PROVIDER in ("openai", "openai_compat", "deepseek"):
         r = call_openai(system, user)
+    elif MODEL_PROVIDER == "openrouter":
+        # OpenRouter dùng API dạng OpenAI; MODEL_NAME có tiền tố nhà cung cấp, vd google/gemini-3.1-flash-lite
+        r = call_openai(system, user, MODEL_BASE_URL or "https://openrouter.ai/api/v1")
     elif MODEL_PROVIDER in ("anthropic", "claude"):
         r = call_claude(system, user)
     elif MODEL_PROVIDER in ("gemini", "google"):
@@ -111,9 +114,9 @@ def post_json(url, headers, body, timeout=120):
     return data
 
 
-def call_openai(system, user):
-    """OpenAI và mọi API dạng OpenAI (đổi MODEL_BASE_URL, vd https://api.deepseek.com/v1)."""
-    url = (MODEL_BASE_URL or "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
+def call_openai(system, user, base_url=None):
+    """OpenAI và mọi API dạng OpenAI (đổi MODEL_BASE_URL, vd https://api.deepseek.com/v1; OpenRouter)."""
+    url = (base_url or MODEL_BASE_URL or "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
     messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
     data = post_json(url, {"Authorization": "Bearer " + API_KEY}, {"model": MODEL_NAME, "messages": messages})
     u = data["usage"]
