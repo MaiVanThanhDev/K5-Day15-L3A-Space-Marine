@@ -40,6 +40,6 @@ Khung chỉ dùng thư viện chuẩn của Python. Thêm thư viện thì ghi v
 
 ## Quy ước của nhóm
 
-- Ngôn ngữ trả lời người dùng: __
-- Phong cách code / đặt tên: __
-- Ai duyệt thay đổi do agent tạo trước khi commit: __
+- Ngôn ngữ trả lời người dùng: tiếng Việt có dấu, ngắn 1–3 câu, kèm trích nguồn `file · sheet · ô` do code tự thêm (luật trong `SYSTEM` ở `codebase/agent.py`). Tài liệu trong repo cũng viết tiếng Việt.
+- Phong cách code / đặt tên: Python thư viện chuẩn, `snake_case`. Hàm công cụ và tham số đặt tên tiếng Việt không dấu cho khớp miền bài toán (`tong_quan_khoa`, `tra_lich(ngay, buoi, lop, phong)`, `soan_chuyen_ta`); hàm phụ nội bộ có tiền tố `_`. Mỗi công cụ có `@tool` và docstring theo hợp đồng ở bảng trên.
+- Ai duyệt thay đổi do agent tạo trước khi commit: người phụ trách phần đó theo `TEAMS.md` đọc lại diff và chạy `python run.py check` (sửa `codebase/` thì chạy thêm `python run.py eval --try`). Đội trưởng Mai Văn Thanh duyệt trước khi merge vào `main`. Việc dùng AI ghi vào `docs/ai-usage.md`.

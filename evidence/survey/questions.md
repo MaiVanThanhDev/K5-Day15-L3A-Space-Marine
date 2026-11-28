@@ -1,8 +1,8 @@
 # Khảo sát — tra hạn nộp / phòng học / lịch học (AI20K K5)
 
-- Kênh gửi: __ *(vd: kênh chung Discord L3A, L3B, nhóm Zalo lớp)*
-- Mở form: __ (ngày giờ) · Chốt: __ (ngày giờ)
-- Link form: __
+- Kênh gửi: kênh hackathon official của lớp L3A
+- Mở form: 17:00 ngày 27/11/2026 · Chốt: 19:00 ngày 27/11/2026
+- Link form: https://docs.google.com/forms/d/e/1FAIpQLSdinbftT5i0o3utEiGhiHB9hLoDvl-sb3bARzZ9LBGMiyGCJw/viewform
 - Đối tượng: học viên L3 **ngoài nhóm Space Marine**. Ngưỡng: ≥20 người.
 - Không thu tên, email, mã học viên (trừ câu 10 nếu người trả lời tự để lại).
 
@@ -14,7 +14,9 @@
 
 ## Tin nhắn mời (dán kèm link)
 
-> Chào cả lớp, nhóm Space Marine (L3A) đang tìm hiểu cách mọi người tra **hạn nộp lab, phòng học, lịch học** trong khoá. Form 2 phút, 10 câu, không thu tên hay email, chỉ hỏi về những lần đã xảy ra. Nhờ mọi người điền giúp trước __h nhé, cảm ơn nhiều! 🙏 [link]
+> Chào cả lớp, nhóm Space Marine (L3A) đang tìm hiểu cách mọi người tra **hạn nộp lab, phòng học, lịch học** trong khoá. Form 2 phút, 10 câu, không thu tên hay email, chỉ hỏi về những lần đã xảy ra. Nhờ mọi người điền giúp nhé, cảm ơn nhiều! 🙏 [link]
+
+Tin nhắn thật không ghi giờ hạn; form chốt lúc 19:00 27/11/2026.
 
 ## Câu hỏi (chép nguyên văn sang Google Form)
 
